@@ -1,0 +1,26 @@
+{
+    "name": "dseguy/data-combinator",
+    "type": "library",
+    "description": "Data combinator is a PHP library that combines data.",
+    "keywords": [
+        "fixtures",
+        "data"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Damien Seguy"
+        }
+    ],
+    "require": {
+        "php": "^5.3.3 || ^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+    },
+    "autoload": {
+        "psr-4": {
+            "Datacombinator\\": "src/Datacombinator/"
+        }
+    }
+}

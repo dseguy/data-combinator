@@ -1,13 +1,15 @@
 <?php
 
-namespace Datacombinator;
+/*
+ * This file is part of data-combinator.
+ *
+ * (c) Damien Seguy <dseguy@exakat.io>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-// inject various values
-// produce array and generator
-// produces data list for documentation
-// generate objects and clones
-// generate multiple times the same structure
-// produce a JSON
+namespace Datacombinator;
 
 use Datacombinator\Values\Constant;
 use Datacombinator\Values\Lambda;
@@ -15,10 +17,12 @@ use Datacombinator\Values\Set;
 use Datacombinator\Values\Permute;
 use Datacombinator\Values\Combine;
 use Datacombinator\Values\Factory;
+use Datacombinator\Values\Copy;
 
 
 class Matrix {
 	private $seeds = [];
+	private $class = null;
 
 	function __construct() {
 
@@ -30,6 +34,10 @@ class Matrix {
 
 	public function addSet($name, $value) {
 		$this->seeds[$name] = new Set($value);
+	}
+
+	public function addCopy($name, $value) {
+		$this->seeds[$name] = new Copy($value);
 	}
 
 	public function addLambda($name, $value) {
@@ -52,6 +60,13 @@ class Matrix {
 	public function addObject($name, $class, $matrix) {
 	    $this->seeds[$name] = new Factory($class, $matrix);
 	}
+	
+	public function setClass(string $class) {
+	    if (!class_exists($class)) {
+	        throw \Exception('No such class');
+	    }
+	    $this->class = $class;
+	}
 
 	public function generate() : \Generator {
 		yield from $this->process($this->seeds);
@@ -59,7 +74,16 @@ class Matrix {
 
 	private function process(array $seeds, array $previous = []) {
 		if (empty($seeds)) {
-			yield $previous;
+		    if ($this->class === null) {
+    			yield $previous;
+		    } else {
+		        $class = $this->class;
+		        $yield = new $class;
+		        foreach(get_class_vars($class) as $name => $value) {
+		            $yield->$name = $previous[$name];
+		        }
+    			yield $yield;
+		    }
 
 			return;
 		}
