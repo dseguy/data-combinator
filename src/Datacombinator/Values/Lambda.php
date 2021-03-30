@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /*
  * This file is part of data-combinator.
@@ -12,16 +12,16 @@
 namespace Datacombinator\Values;
 
 class Lambda extends Values {
-	function __construct(\Closure $value) {
-		$this->closure = $value;
-	}
+    public function __construct(\Closure $value) {
+        $this->closure = $value;
+    }
 
-	public function generate($r) : \Generator {
-		$closure = $this->closure;
-		yield $closure($r);
-		
-		return;
-	}
+    public function generate($r): \Generator {
+        $closure = $this->closure;
+        yield $closure($r);
+
+
+    }
 }
 
 ?>

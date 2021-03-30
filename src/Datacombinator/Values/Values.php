@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /*
  * This file is part of data-combinator.
  *
@@ -11,7 +11,7 @@
 namespace Datacombinator\Values;
 
 abstract class Values {
-	public abstract function generate($r) : \Generator;
+    abstract public function generate($r): \Generator;
 }
 
 ?>
