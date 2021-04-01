@@ -31,15 +31,19 @@ class Matrix {
         $this->seeds[$name] = new Constant($value);
     }
 
-    public function addSet($name, $value) {
+    public function addSet($name, iterable $value) {
         $this->seeds[$name] = new Set($value);
     }
 
-    public function addCopy($name, $value) {
+    public function addCopy($name, object $value) {
         $this->seeds[$name] = new Copy($value);
     }
 
-    public function addLambda($name, $value) {
+    public function addLambda($name, callable $value) {
+        if (!is_callable($value)) {
+            throw new \TypeError('Value is not callable');
+        }
+
         $this->seeds[$name] = new Lambda($value);
     }
 
@@ -73,8 +77,11 @@ class Matrix {
 
     private function process(array $seeds, array $previous = array()) {
         if (empty($seeds)) {
+
             if ($this->class === null) {
                 yield $previous;
+            } elseif ($this->class === \Stdclass::class) {
+                yield (object) $previous;
             } else {
                 $class = $this->class;
                 $yield = new $class();

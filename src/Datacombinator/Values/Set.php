@@ -12,7 +12,7 @@
 namespace Datacombinator\Values;
 
 class Set extends Values {
-    public function __construct(array $value) {
+    public function __construct(iterable $value) {
         $this->values = $value;
     }
 

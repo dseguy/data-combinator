@@ -17,8 +17,7 @@ class Copy extends Values {
     }
 
     public function generate($r): \Generator {
-            yield clone $this->values;
-
-
+        $a = clone $this->values;
+        yield $a;
     }
 }

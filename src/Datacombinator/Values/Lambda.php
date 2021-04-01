@@ -12,13 +12,15 @@
 namespace Datacombinator\Values;
 
 class Lambda extends Values {
-    public function __construct(\Closure $value) {
-        $this->closure = $value;
+    private $callable = null;
+
+    public function __construct(callable $value) {
+        $this->callable = $value;
     }
 
     public function generate($r): \Generator {
-        $closure = $this->closure;
-        yield $closure($r);
+        $callable = $this->callable;
+        yield $callable($r);
 
 
     }
