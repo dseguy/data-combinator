@@ -68,7 +68,7 @@ class Matrix {
         if (!class_exists($class)) {
             throw \Exception('No such class');
         }
-        $this->class = $class;
+        $this->class = strtolower($class);
     }
 
     public function generate(): \Generator {
@@ -80,7 +80,7 @@ class Matrix {
 
             if ($this->class === null) {
                 yield $previous;
-            } elseif ($this->class === \Stdclass::class) {
+            } elseif ($this->class === strtolower(\Stdclass::class)) {
                 yield (object) $previous;
             } else {
                 $class = $this->class;
