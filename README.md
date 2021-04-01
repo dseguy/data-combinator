@@ -1,6 +1,6 @@
 # Data Combinator for PHP 
 
-When you want to list all possible combinaisons.
+When you want to list all possible combinations.
 
 From ```[[1, 2], [3, 4]] ``` to 
 
@@ -15,6 +15,12 @@ From ```[[1, 2], [3, 4]] ``` to
 
 Allows you to create lots of data by combining them together! 
 
+# Applications
+
+* Generates all possible combinations for a command line tool
+* Generates numerous variations for incoming data
+* Produces structured data easily 
+
 ### Installation
 
 With [Composer](https://getcomposer.org/), do the timeless
@@ -24,7 +30,6 @@ $ composer require dseguy/data-combinator
 ```
 
 ### Simple example
-
 
 ```php
 require 'vendor/autoload.php';
@@ -68,29 +73,16 @@ Array
 
 ## APIs
 
-### setClass
+* [addConstant()](#addConstant) - adds a unique value
+* [addSet()](#addSet) - adds a list of values
+* [addLambda()](#addLambda) - calls an arbitrary function to generate a value
+* [addPermute()](#addPermute) - creates all permutations from a list
+* [addCombine()](#addCombine) - creates all combinations from a list 
+* [addCopy()](#addCopy) - clones objects instead of copying them by value
+* [addMatrix()](#addMatrix) - nests matrices within matrices
+* [setClass()](#setClass) - switch from array representation to object
 
-By default, the matrix generates values of array types. This is the most versatile format. It is possible to turn those arrays into objects, by giving it a class. 
-
-The object is created by a call to new without arguments. Then, public properties are set by direct access. Private and protected properties are omitted; missing values are left untouched; extra values are omitted too.
-
-```php
-
-class Point {
-	int $x, $y;
-}
-
-$m = new Datacombinator\Matrix();
-$m->setClass(Point::class);
-$m->addSet('x', [1,2]);
-$m->addSet('y', [4,5]);
-
-foreach($m->generate() as $value) {
-    print_r($value);
-}
-
-```
-
+<a name="addConstant"></a>
 ### addConstant
 
 This adds a unique value to the Matrix. No repetition with this one. Note that the value might be an array.
@@ -107,7 +99,9 @@ Array
     [y] => 3
 )
 ```
+See also [addCopy()]($addCopy) for cloning objects.
 
+<a name="addSet"></a>
 ### AddSet
 
 This adds a list of values to the Matrix. Each value will be repeated once. Provide an array of arrays, to combine those arrays.
@@ -138,9 +132,10 @@ Array
 
 ```
 
+<a name="addLambda"></a>
 ### addLambda
 
-This adds a closure as a value. The closure will be called for each item, with all the previously created values as argument (array). The returned value is used as the generated value. 
+This method adds a closure, a callback or an arrow function as a value. The closure will be called for each item to generate a new value. The closure will receive an (array) argument with all the previously created values (in the order of adding). That way, it may create a new value, based on previously generated values. 
 
 ```php
 
@@ -160,6 +155,7 @@ $m->addLambda('y', function ($value) { return rand(0, 2 * $value['x']);});
 )
 ```
 
+<a name="addPermute"></a>
 ### addPermute
 
 Uses the list as one argument, and generates all possible permutations of the values in it. 
@@ -233,7 +229,7 @@ Array
 )
 ```
 
-
+<a name="addCombine"></a>
 ### addCombine
 
 Uses the list as one set, and generates all possible combinaisons of them, from none (empty array) to all of them.
@@ -315,9 +311,10 @@ Array
 )
 ```
 
+<a name="addCopy"></a>
 ### addCopy
 
-While addConstant makes a value copy of the constant, addCopy clones the input object each time. They will look identical, at generation time, but are actually distinct objects.
+While [addConstant()]($addConstant) makes a value copy of the constant, addCopy clones the input object each time. They will look identical, at generation time, but are actually distinct objects.
 
 
 ```php
@@ -330,26 +327,26 @@ $m->addSet('i', [1, 2]);
 
 $generated = $m->toArray();
 
-$m[0]->y = 1;
-print_r($m);
-
 ```
+
+<a name="addMatrix"></a>
 ### addMatrix
 
-Adding a Matrix to another is the way to nest matrices. 
+Adding a Matrix to another is the way to nest matrices. It allows the creation of objects through the combining process.
 
 ```php
 
 $m = new Datacombinator\Matrix();
 $m->addSet('i', [2, 3]);
+$m->setClass(stdClass::class);
 
 $n = new Datacombinator\Matrix();
 $n->addSet('j', [5,7]);
 $n->addMatrix('x', $m);
-
+Array
 (
     [j] => 5
-    [x] => Array
+    [x] => stdClass Object
         (
             [i] => 2
         )
@@ -358,7 +355,7 @@ $n->addMatrix('x', $m);
 Array
 (
     [j] => 5
-    [x] => Array
+    [x] => stdClass Object
         (
             [i] => 3
         )
@@ -367,7 +364,7 @@ Array
 Array
 (
     [j] => 7
-    [x] => Array
+    [x] => stdClass Object
         (
             [i] => 2
         )
@@ -376,7 +373,7 @@ Array
 Array
 (
     [j] => 7
-    [x] => Array
+    [x] => stdClass Object
         (
             [i] => 3
         )
@@ -384,18 +381,60 @@ Array
 )
 ```
 
-## How-to
+<a name="setClass"></a>
+### setClass
 
+By default, the matrix generates values of array types. This is the most versatile format. It is possible to turn those arrays into objects, by giving it a class. 
+
+The object is created with an instanciation without arguments. Then, public properties are set by direct access. Private and protected properties are omitted; missing values are left untouched; extra values are omitted too.
+
+```php
+
+class Point {
+	int $x, $y;
+}
+
+$m = new Datacombinator\Matrix();
+$m->setClass(Point::class);
+$m->addSet('x', [1,2]);
+$m->addSet('y', [4,5]);
+
+Point Object
+(
+    [x] => 1
+    [y] => 4
+)
+
+```
+
+You may also get a stdClass object by using its fully qualified name. Then, all passed values will be turned into a property. 
+
+```php
+
+class Point {
+	int $x, $y;
+}
+
+$m = new Datacombinator\Matrix();
+$m->setClass(\stdClass::class);
+$m->addConstant('x', 1);
+$m->addConstant('y', 2);
+
+stdClass Object
+(
+    [x] => 1
+    [y] => 2
+)
+```
 
 
 ## TODO
 
-* add support for other closure type (arrow function, callbacks...)
-* add supports for iterators and generators
 * add supports for setters and factories
-* add supports for aliases (reusing a set of value that is already valid)
+* add support for references (currently, all by value)
+* add supports for aliases (reusing a set of value that is already defined in another part of the generator)
 * produces data list for documentation
 * produce a JSON
 * count() (when possible)
-* Add tests
 * Add coding convention
+* FAQ/HOW-to
