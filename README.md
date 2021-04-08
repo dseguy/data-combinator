@@ -73,6 +73,7 @@ Array
 
 ## APIs
 
+* [Common behaviors](#Common-behaviors) - common behaviors to the public methods
 * [addConstant()](#addConstant) - adds a unique value
 * [addSet()](#addSet) - adds a list of values
 * [addLambda()](#addLambda) - calls an arbitrary function to generate a value
@@ -80,7 +81,20 @@ Array
 * [addCombine()](#addCombine) - creates all combinations from a list 
 * [addCopy()](#addCopy) - clones objects instead of copying them by value
 * [addMatrix()](#addMatrix) - nests matrices within matrices
-* [setClass()](#setClass) - switch from array representation to object
+* [setClass()](#setClass) - selects the resulting object type : array, list or object
+
+<a name="Common-behaviors"></a>
+### Common-behaviors
+
+Public methods are called with at least two arguments ; the name of the value, and the actual value or a generator for that value. 
+
+Each value name is a string, or null. When the name is null, automatic id is generated, starting from 0 (a la PHP).
+
+Index for arrays may be provided with a string, which will be turned into an array index by PHP. Using null and Matrix::TYPE_ARRAY has the same effect as using Matrix::TYPE_LIST. Using Matrix::TYPE_LIST with named values is legit : the names will be dropped at generation time, yet, they provide some readability at configuration time. 
+
+It is possible to overwrite a previously set property by adding it again. 
+
+It is recommended to avoid using any other format beside string, integers in strings and null. 
 
 <a name="addConstant"></a>
 ### addConstant
@@ -384,9 +398,11 @@ Array
 <a name="setClass"></a>
 ### setClass
 
-By default, the matrix generates values of array types. This is the most versatile format. It is possible to turn those arrays into objects, by giving it a class. 
+By default, the matrix generates values of type array. This is the most versatile format. 
 
-The object is created with an instanciation without arguments. Then, public properties are set by direct access. Private and protected properties are omitted; missing values are left untouched; extra values are omitted too.
+It is possible to turn those arrays into objects, by giving it a class, or into a list (automatically indexed array) by using the Matrix::TYPE_LIST constant. It is possible to force the default type with the Matrix::TYPE_ARRAY constant.
+
+The object is created with an instanciation without arguments. Then, public properties are set by public access. Private and protected properties are omitted; missing values are left untouched; extra values are omitted too.
 
 ```php
 
@@ -430,8 +446,9 @@ stdClass Object
 
 ## TODO
 
-* add supports for setters and factories
-* add support for references (currently, all by value)
+* add supports for setters and factories, __constructor with arguments
+* add supports for partitions of arrays [[1], [1]], [[2]] 
+* add support for references (currently, all adding is by value)
 * add supports for aliases (reusing a set of value that is already defined in another part of the generator)
 * produces data list for documentation
 * produce a JSON

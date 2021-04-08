@@ -351,6 +351,74 @@ final class MatrixTest extends TestCase
             ['a' => 1, 'b' => 'c']
         );
     }
+
+    public function testCreateList(): void
+    {
+        $matrix = new Matrix();
+        
+        $matrix->addConstant('a', 1);
+        $matrix->setClass(Matrix::TYPE_LIST);
+
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0],
+            [1]
+        );
+    }
+
+    public function testCreateArray(): void
+    {
+        $matrix = new Matrix();
+        
+        $matrix->addConstant('a', 1);
+        $matrix->setClass(Matrix::TYPE_ARRAY);
+
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0],
+            ['a' => 1]
+        );
+    }
+
+    public function testInvalidType(): void
+    {
+        $matrix = new Matrix();
+        
+        $matrix->addConstant('a', 1);
+
+        $caught = 0;
+        try {
+            $matrix->setClass('12');
+        } catch (\Exception $e) {
+            $caught = 1;
+        } finally {
+            $this->assertEquals(
+                $caught,
+                1
+            );
+        }
+    }
+
+    public function testCreateConstantWithNull(): void
+    {
+        $matrix = new Matrix();
+        
+        $matrix->addConstant(null, 1);
+        $matrix->addSet(null, [4, 5]);
+        $matrix->setClass(Matrix::TYPE_LIST);
+
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0],
+            [1, 4]
+        );
+        $this->assertEquals(
+            $result[1],
+            [1, 5]
+        );
+    }
+
+
 }
 
 class x2 {

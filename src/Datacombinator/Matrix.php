@@ -20,26 +20,33 @@ use Datacombinator\Values\Factory;
 use Datacombinator\Values\Copy;
 
 class Matrix {
+    public const TYPE_ARRAY = 1;
+    public const TYPE_LIST = 2;
     private $seeds = array();
-    private $class = null;
+    private $class = self::TYPE_ARRAY;
+    private $id = 0;
 
     public function __construct() {
 
     }
 
     public function addConstant($name, $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Constant($value);
     }
 
     public function addSet($name, iterable $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Set($value);
     }
 
     public function addCopy($name, object $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Copy($value);
     }
 
     public function addLambda($name, callable $value) {
+        $name = $this->makeId($name);
         if (!is_callable($value)) {
             throw new \TypeError('Value is not callable');
         }
@@ -47,28 +54,48 @@ class Matrix {
         $this->seeds[$name] = new Lambda($value);
     }
 
-    public function addMatrix($name, Matrix $value) {
+    public function addMatrix(?string $name, Matrix $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = $value;
     }
 
     public function addPermute($name, array $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Permute($value);
     }
 
     public function addCombine($name, array $value) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Combine($value);
     }
 
     //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
     public function addObject($name, $class, $matrix) {
+        $name = $this->makeId($name);
         $this->seeds[$name] = new Factory($class, $matrix);
     }
 
-    public function setClass(string $class) {
-        if (!class_exists($class)) {
-            throw \Exception('No such class');
+    public function setClass($class): void {
+
+        if (intval($class) !== 0 && 
+            in_array($class, array(self::TYPE_ARRAY, self::TYPE_LIST), true)) {
+            $this->class = $class;
+
+            return;
         }
-        $this->class = strtolower($class);
+
+        if (is_string($class)) {
+            if (!class_exists($class)) {
+                throw new \Exception('No such class');
+            }
+            $this->class = strtolower($class);
+
+            return;
+        }
+
+        if (!class_exists($class)) {
+            throw \Exception('No such Matrix type as ' . $class);
+        }
     }
 
     public function generate(): \Generator {
@@ -78,16 +105,20 @@ class Matrix {
     private function process(array $seeds, array $previous = array()) {
         if (empty($seeds)) {
 
-            if ($this->class === null) {
+            if ($this->class === self::TYPE_ARRAY) {
                 yield $previous;
+            } elseif ($this->class === self::TYPE_LIST) {
+                yield array_values($previous);
             } elseif ($this->class === strtolower(\Stdclass::class)) {
                 yield (object) $previous;
             } else {
                 $class = $this->class;
                 $yield = new $class();
+
                 foreach(get_class_vars($class) as $name => $value) {
                     $yield->$name = $previous[$name];
                 }
+
                 yield $yield;
             }
 
@@ -113,6 +144,14 @@ class Matrix {
         }
 
         return $return;
+    }
+
+    public function makeId(?string $name): string {
+        if ($name === null) {
+            return (string) $this->id++;
+        }
+
+        return $name;
     }
 
 
