@@ -113,20 +113,26 @@ class Matrix {
     }
 
     private function process(array $seeds) {
-        if (empty($seeds)) {
 
+        $previous = array();
+        foreach($this->previous as $a => $b) {
+            $previous[$a] = $b;
+        }
+
+        if (empty($seeds)) {
+//            print "Yield ".implode('-', $previous)."\n";
             if ($this->class === self::TYPE_ARRAY) {
-                yield $this->previous;
+                yield $previous;
             } elseif ($this->class === self::TYPE_LIST) {
-                yield array_values($this->previous);
+                yield array_values($previous);
             } elseif ($this->class === strtolower(\Stdclass::class)) {
-                yield (object) $this->previous;
+                yield (object) $previous;
             } else {
                 $class = $this->class;
                 $yield = new $class();
 
                 foreach(get_class_vars($class) as $name => $value) {
-                    $yield->$name = $this->previous[$name];
+                    $yield->$name = $previous[$name];
                 }
 
                 yield $yield;
@@ -139,7 +145,7 @@ class Matrix {
         $v = $seeds[$p];
         unset($seeds[$p]);
 
-        $x = array('dd' => 2);
+        $x = array();
         $this->previous[$p] = &$x;
 
         foreach($v->generate($this->previousSeeds, $this->previous[$p]) as $value) {
