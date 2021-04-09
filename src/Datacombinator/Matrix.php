@@ -164,6 +164,15 @@ class Matrix {
 
         return $return;
     }
+    
+    public function count() : int {
+        $r = 1;
+        foreach($this->seeds as $seed) {
+            $r *= $seed->count();
+        }
+        
+        return $r;
+    }
 
     public function makeId(?string $name): string {
         if ($name === null) {

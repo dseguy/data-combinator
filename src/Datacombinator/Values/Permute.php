@@ -38,4 +38,11 @@ class Permute extends Values {
             yield from $this->permute($array2, $yield2);
         }
     }
+
+    public function count(): int {
+        // throw ?
+        $n = count($this->values);
+        return $n * ($n + 1) / 2;
+    }
+
 }

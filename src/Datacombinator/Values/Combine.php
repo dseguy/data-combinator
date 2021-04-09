@@ -42,4 +42,8 @@ class Combine extends Values {
             yield $v;
         }
     }
+
+    public function count(): int {
+        return 2 ** count($this->values);
+    }
 }

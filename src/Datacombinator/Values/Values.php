@@ -12,6 +12,11 @@ namespace Datacombinator\Values;
 
 abstract class Values {
     abstract public function generate($r): \Generator;
+
+    public function count(): int {
+        // throw ?
+        return 1;
+    }
 }
 
 ?>

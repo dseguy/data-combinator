@@ -20,7 +20,17 @@ class Set extends Values {
         foreach($this->values as $value) {
             yield $value;
         }
+    }
 
+    public function count(): int {
+        if ($this->values instanceof \Generator) {
+            throw new \Exception('Cannot count generators');
+        }
 
+        if ($this->values instanceof \Iterator) {
+            throw new \Exception('Cannot count iterators');
+        }
+
+        return count($this->values);
     }
 }

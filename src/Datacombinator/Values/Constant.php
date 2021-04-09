@@ -17,8 +17,5 @@ class Constant extends Values {
 
     public function generate($r): \Generator {
         yield $this->values;
-
-
     }
-
 }

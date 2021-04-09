@@ -82,6 +82,7 @@ Array
 * [addCopy()](#addCopy) - clones objects instead of copying them by value
 * [addMatrix()](#addMatrix) - nests matrices within matrices
 * [setClass()](#setClass) - selects the resulting object type : array, list or object
+* [count()](#count) - estimates the number of elements that will be produced
 
 <a name="Common-behaviors"></a>
 ### Common-behaviors
@@ -443,6 +444,21 @@ stdClass Object
 )
 ```
 
+<a name="count"></a>
+### count
+
+Counts the number of elements to be produced. 
+
+```php
+
+$m = new Datacombinator\Matrix();
+$m->addSet('x', [1,2]);
+$m->addSet('y', [4,5]);
+print $m->count()." elements";
+
+
+// 4 elements
+```
 
 ## TODO
 
@@ -452,6 +468,6 @@ stdClass Object
 * add supports for aliases (reusing a set of value that is already defined in another part of the generator)
 * produces data list for documentation
 * produce a JSON
-* count() (when possible)
 * Add coding convention
 * FAQ/HOW-to
+* Les données sont générées une seule fois, ou bien a chaque fois (repetabilité)
