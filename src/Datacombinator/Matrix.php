@@ -23,6 +23,8 @@ class Matrix {
     public const TYPE_ARRAY = 1;
     public const TYPE_LIST = 2;
     private $seeds = array();
+    private $previousSeeds = array();
+    private $previous = array();
     private $class = self::TYPE_ARRAY;
     private $id = 0;
 
@@ -54,9 +56,9 @@ class Matrix {
         $this->seeds[$name] = new Lambda($value);
     }
 
-    public function addMatrix(?string $name, Matrix $value) {
+    public function addMatrix(?string $name, Matrix $matrix) {
         $name = $this->makeId($name);
-        $this->seeds[$name] = $value;
+        $this->seeds[$name] = $matrix;
     }
 
     public function addPermute($name, array $value) {
@@ -77,7 +79,7 @@ class Matrix {
 
     public function setClass($class): void {
 
-        if (intval($class) !== 0 && 
+        if (intval($class) !== 0 &&
             in_array($class, array(self::TYPE_ARRAY, self::TYPE_LIST), true)) {
             $this->class = $class;
 
@@ -98,25 +100,33 @@ class Matrix {
         }
     }
 
-    public function generate(): \Generator {
+    public function generate(array $previousSeeds = array(), &$previous = ''): \Generator {
+        $this->previousSeeds = $previousSeeds;
+
+        if ($previous === '') {
+            $this->previous = &$this->previousSeeds;
+        } else {
+            $this->previous = &$previous;
+        }
+
         yield from $this->process($this->seeds);
     }
 
-    private function process(array $seeds, array $previous = array()) {
+    private function process(array $seeds) {
         if (empty($seeds)) {
 
             if ($this->class === self::TYPE_ARRAY) {
-                yield $previous;
+                yield $this->previous;
             } elseif ($this->class === self::TYPE_LIST) {
-                yield array_values($previous);
+                yield array_values($this->previous);
             } elseif ($this->class === strtolower(\Stdclass::class)) {
-                yield (object) $previous;
+                yield (object) $this->previous;
             } else {
                 $class = $this->class;
                 $yield = new $class();
 
                 foreach(get_class_vars($class) as $name => $value) {
-                    $yield->$name = $previous[$name];
+                    $yield->$name = $this->previous[$name];
                 }
 
                 yield $yield;
@@ -129,10 +139,13 @@ class Matrix {
         $v = $seeds[$p];
         unset($seeds[$p]);
 
-        foreach($v->generate($previous) as $value) {
-            $previous[$p] = $value;
+        $x = array('dd' => 2);
+        $this->previous[$p] = &$x;
 
-            yield from $this->process($seeds, $previous);
+        foreach($v->generate($this->previousSeeds, $this->previous[$p]) as $value) {
+            $this->previous[$p] = $value;
+
+            yield from $this->process($seeds);
         }
     }
 
@@ -153,8 +166,6 @@ class Matrix {
 
         return $name;
     }
-
-
 }
 
 ?>

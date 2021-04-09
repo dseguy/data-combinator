@@ -19,10 +19,10 @@ class Lambda extends Values {
     }
 
     public function generate($r): \Generator {
+//        print_r($r);
         $callable = $this->callable;
+
         yield $callable($r);
-
-
     }
 }
 
