@@ -27,6 +27,7 @@ class Matrix {
     private $previous = array();
     private $class = self::TYPE_ARRAY;
     private $id = 0;
+    private $cache = null;
 
     public function __construct() {
 
@@ -155,22 +156,40 @@ class Matrix {
         }
     }
 
+    public function resetCache(): void {
+        $this->cache = null;
+    }
+
     public function toArray(): array {
+        if ($this->cache !== null) {
+            return $this->cache;
+        }
+
         $return = array();
 
         foreach($this->generate() as $array) {
             $return[] = $array;
         }
 
+        $this->cache = $return;
+
         return $return;
     }
-    
-    public function count() : int {
+
+    public function toJson(string $filename = ''): int {
+        if ($filename === '') {
+            throw \Exception('toJson requires a filename.');
+        }
+
+        return file_put_contents($filename, json_encode($this->toArray()));
+    }
+
+    public function count(): int {
         $r = 1;
         foreach($this->seeds as $seed) {
             $r *= $seed->count();
         }
-        
+
         return $r;
     }
 

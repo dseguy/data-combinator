@@ -464,10 +464,11 @@ print $m->count()." elements";
 
 * add supports for setters and factories, __constructor with arguments
 * add supports for partitions of arrays [[1], [1]], [[2]] 
-* add support for references (currently, all adding is by value)
 * add supports for aliases (reusing a set of value that is already defined in another part of the generator)
 * produces data list for documentation
 * produce a JSON
 * Add coding convention
 * FAQ/HOW-to
-* Les données sont générées une seule fois, ou bien a chaque fois (repetabilité)
+* Data are always regenerated each time generate() is called. 
+
+* Cannot add support for references. Use objects instead. 
