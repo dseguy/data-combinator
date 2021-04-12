@@ -77,5 +77,31 @@ final class LambdaTest extends TestCase
         );
     }
 
+    public function testLambdaWithNestedTwosLevelsPreviousValueMatrix(): void
+    {
+        $m1 = new Matrix();
+
+        $m1->addConstant('a1', 11);
+        $m1->addLambda('b', function (array $r) : string { return $r['c']['a2'] . 'a'; });
+
+        $m2 = new Matrix();
+
+        $m2->addConstant('a2', 12);
+        $m2->addMatrix('c', $m1);
+        $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2']; });
+
+        $m3 = new Matrix();
+
+        $m3->addConstant('a3', 13);
+        $m3->addMatrix('c', $m2);
+        $m3->addLambda('b3', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2'].$r['c']['c']['a1']; });
+
+        $result = $m3->toArray();
+        $this->assertEquals(
+            $result[0],
+            ['a3' => 13, 'c' => ['a2' => 12, 'c' => ['a1' => 11, 'b' => '12a' ] , 'b2' => 'b1312'], 'b3' => 'b131211']
+        );
+    }
+
 }
 
