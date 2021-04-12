@@ -418,11 +418,32 @@ final class MatrixTest extends TestCase
         );
     }
 
+    public function testWithDefaultValuesInClasses(): void
+    {
+        $matrix = new Matrix();
+        
+        $matrix->addConstant('x3a', 2);
+        $matrix->setClass(X3::class);
 
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0]->x3a,
+            2
+        );
+        $this->assertEquals(
+            $result[0]->x3b,
+            1
+        );
+    }
 }
 
 class x2 {
     public $x2a;
     protected $x2b;
     private $x2c;
+}
+
+class x3 {
+    public $x3a;
+    public $x3b = 1;
 }

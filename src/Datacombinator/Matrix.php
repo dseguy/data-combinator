@@ -58,6 +58,10 @@ class Matrix {
     }
 
     public function addMatrix(?string $name, Matrix $matrix) {
+        if ($matrix === $this) {
+            throw new \Exception('Cannot nest matrices');
+        }
+
         $name = $this->makeId($name);
         $this->seeds[$name] = $matrix;
     }
@@ -134,7 +138,6 @@ class Matrix {
         }
 
         if (empty($seeds)) {
-//            print "Yield ".implode('-', $previous)."\n";
             if ($this->class === self::TYPE_ARRAY) {
                 yield $previous;
             } elseif ($this->class === self::TYPE_LIST) {
@@ -145,8 +148,12 @@ class Matrix {
                 $class = $this->class;
                 $yield = new $class();
 
+                // only use accessible values
                 foreach(get_class_vars($class) as $name => $value) {
-                    $yield->$name = $previous[$name];
+                    // skip undefined values, to use the default value.
+                    if (isset($previous[$name])) {
+                        $yield->$name = $previous[$name];
+                    }
                 }
 
                 yield $yield;
