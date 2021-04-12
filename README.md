@@ -74,6 +74,7 @@ Array
 ## APIs
 
 * [Common behaviors](#Common-behaviors) - common behaviors to the public methods
+* [generate()](#generate) - yields one value
 * [addConstant()](#addConstant) - adds a unique value
 * [addSet()](#addSet) - adds a list of values
 * [addLambda()](#addLambda) - calls an arbitrary function to generate a value
@@ -115,6 +116,25 @@ Array
 )
 ```
 See also [addCopy()]($addCopy) for cloning objects.
+
+<a name="generate"></a>
+### generate
+
+Returns a generator for usage with foreach() structures. 
+
+The generator will return the same values as the `toArray()` method, but yielded, one by one. 
+After a full generation, the generate() method will yield again the same values, as per cache. 
+
+```php
+
+$m = new Datacombinator\Matrix();
+$m->addSet('x', [1, [2], 3]);
+$m->addConstant('y', 4);
+
+foreach($m->generate() as $array) {
+    print_r($array);
+}
+```
 
 <a name="addSet"></a>
 ### AddSet
