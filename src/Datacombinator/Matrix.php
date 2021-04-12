@@ -102,6 +102,14 @@ class Matrix {
     }
 
     public function generate(array $previousSeeds = array(), &$previous = ''): \Generator {
+        if ($this->cache !== null) {
+            yield from $this->cache;
+
+            return;
+        }
+
+        $cache = array();
+
         $this->previousSeeds = $previousSeeds;
 
         if ($previous === '') {
@@ -110,7 +118,12 @@ class Matrix {
             $this->previous = &$previous;
         }
 
-        yield from $this->process($this->seeds);
+        foreach($this->process($this->seeds) as $yield) {
+            $cache[] = $yield;
+            yield $yield;
+        }
+
+        $this->cache = $cache;
     }
 
     private function process(array $seeds) {
