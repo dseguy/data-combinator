@@ -435,6 +435,27 @@ final class MatrixTest extends TestCase
             1
         );
     }
+
+    public function testIdenticalSets(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addSet('a', [1, 1]);
+        $matrix->addSet('b', [2, 2, 2]);
+        
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0],
+            ['a' => 1, 'b' => 2]
+        );
+        $this->assertEquals(
+            $results[1],
+            ['a' => 1, 'b' => 2]
+        );
+        $this->assertEquals(
+            count($results),
+            6
+        );
+    }
 }
 
 class x2 {
