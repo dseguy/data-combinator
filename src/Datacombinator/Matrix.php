@@ -165,12 +165,19 @@ class Matrix {
         $p = array_keys($seeds)[0];
         $v = $seeds[$p];
         unset($seeds[$p]);
+        if ($v instanceof self) {
+            $v->resetCache();
+        }
 
         $x = array();
-        $this->previous[$p] = &$x;
+        if (is_object($this->previous)) {
+            $this->previous->$p = &$x;
+        } else {
+            $this->previous[$p] = &$x;
+        }
 
-        foreach($v->generate($this->previousSeeds, $this->previous[$p]) as $value) {
-            $this->previous[$p] = $value;
+        foreach($v->generate($this->previousSeeds, $x) as $value) {
+            $x = $value;
 
             yield from $this->process($seeds);
         }
