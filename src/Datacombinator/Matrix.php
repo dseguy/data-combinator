@@ -163,21 +163,21 @@ class Matrix {
         }
 
         $p = array_keys($seeds)[0];
-        $v = $seeds[$p];
+        $value = $seeds[$p];
         unset($seeds[$p]);
-        if ($v instanceof self) {
-            $v->resetCache();
+        if ($value instanceof self) {
+            $value->resetCache();
         }
 
-        $x = array();
+        $slot = array();
         if (is_object($this->previous)) {
-            $this->previous->$p = &$x;
+            $this->previous->$p = &$slot;
         } else {
-            $this->previous[$p] = &$x;
+            $this->previous[$p] = &$slot;
         }
 
-        foreach($v->generate($this->previousSeeds, $x) as $value) {
-            $x = $value;
+        foreach($value->generate($this->previousSeeds, $slot) as $generated) {
+            $slot = $generated;
 
             yield from $this->process($seeds);
         }
