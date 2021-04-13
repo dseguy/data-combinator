@@ -20,7 +20,11 @@ class Lambda extends Values {
 
     public function generate($r): \Generator {
         $closure = $this->callable;
-        $callable = $closure->bindTo($this);
+        if ($closure instanceof \Closure)  {
+            $callable = $closure->bindTo($this);
+        } else {
+            $callable = $closure;
+        }
 
         yield $callable($r);
     }
