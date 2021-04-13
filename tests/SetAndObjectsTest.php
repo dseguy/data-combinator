@@ -32,7 +32,6 @@ final class SetAndObjectsTest extends TestCase
 
     public function testSetAndObjectAndSet(): void
     {
-
         $matrix2 = new Matrix();
         $matrix2->setClass(x4::class);
         $matrix2->addSet('c', [1,3]);

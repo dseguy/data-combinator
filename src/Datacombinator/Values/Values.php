@@ -11,11 +11,24 @@
 namespace Datacombinator\Values;
 
 abstract class Values {
+    static private $uniqueId = 0;
+
     abstract public function generate($r): \Generator;
 
     public function count(): int {
-        // throw ?
         return 1;
+    }
+
+    static public function resetUniqueId(): int {
+        return self::$uniqueId = 0;
+    }
+
+    public function __get(string $name) {
+        if ($name !== 'uniqueId') {
+            throw new \Exception('No such property as '.$name);
+        }
+        
+        return self::$uniqueId++;
     }
 }
 

@@ -19,7 +19,8 @@ class Lambda extends Values {
     }
 
     public function generate($r): \Generator {
-        $callable = $this->callable;
+        $closure = $this->callable;
+        $callable = $closure->bindTo($this);
 
         yield $callable($r);
     }
