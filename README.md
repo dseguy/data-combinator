@@ -172,6 +172,8 @@ Array
 
 This method adds a closure, a callback or an arrow function as a value. The closure will be called for each item to generate a new value. The closure will receive an (array) argument with all the previously created values (in the order of adding). That way, it may create a new value, based on previously generated values. 
 
+When using a closure or an arrow function, it is possible to access a unique Identifier with the `$this->uniqueId` property. The uniqueId is an int, starting at 1, and incremented each usage. 
+
 ```php
 
 $m = new Datacombinator\Matrix();
@@ -188,6 +190,22 @@ $m->addLambda('y', function ($value) { return rand(0, 2 * $value['x']);});
     [x] => 4
     [y] => 7
 )
+
+$m = new Matrix();
+
+// No argument for this closure, as we don't need it
+$m->addLambda('x', function () { return $this->uniqueId;});
+$m->addSet('y', [5,6]);
+
+(
+    [x] => 1
+    [y] => 5
+)
+(
+    [x] => 2
+    [y] => 6
+)
+
 ```
 
 <a name="addPermute"></a>
