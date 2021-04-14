@@ -63,6 +63,30 @@ final class SetAndObjectsTest extends TestCase
         );
     }
 
+    public function testObjectThenSet(): void
+    {
+
+        $matrix2 = new Matrix();
+        $matrix2->setClass(x4::class);
+        $matrix2->addConstant('c', 1);
+
+        $matrix1 = new Matrix();
+        $matrix1->addMatrix('m', $matrix2);
+        $matrix1->addSet('s', [11,12]);
+        $matrix1->addLambda('d', function ($r) {
+            return $r['m']->c + 10;
+        });
+        
+        $results = $matrix1->toArray();
+        $this->assertEquals(
+            11,
+            $results[0]['d']
+        );
+        $this->assertEquals(
+            11,
+            $results[0]['d']
+        );
+    }
 }
 
 class x4 {
