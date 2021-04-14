@@ -54,8 +54,25 @@ final class AliasTest extends TestCase
         );
     }
 
-/*
-        $a = $matrix->addCombine('a', [1, 2]);
-        $matrix->addAlias('b', $a);
-*/
+    public function testAliasMatrix(): void
+    {
+        $matrix = new Matrix();
+
+        $a = $matrix->addSet('a', [1, 2]);
+        
+        $m2 = new Matrix();
+        $m2->addAlias('j', $a);
+
+        $matrix->addMatrix('b', $m2);
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0]['a'],
+            $results[0]['b']['j'],
+        );
+        $this->assertEquals(
+            $results[1]['a'],
+            $results[1]['b']['j'],
+        );
+    }
 }

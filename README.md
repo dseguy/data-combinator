@@ -82,6 +82,7 @@ Array
 * [addCombine()](#addCombine) - creates all combinations from a list 
 * [addCopy()](#addCopy) - clones objects instead of copying them by value
 * [addMatrix()](#addMatrix) - nests matrices within matrices
+* [addAlias()](#addAlias) - reuse a previously generateur value
 * [setClass()](#setClass) - selects the resulting object type : array, list or object
 * [count()](#count) - estimates the number of elements that will be produced
 
@@ -429,6 +430,36 @@ Array
     [x] => stdClass Object
         (
             [i] => 3
+        )
+
+)
+```
+
+<a name="addAlias"></a>
+### addAlias
+
+Reuse a previously generated value in another slot of the generated data. This is useful when the same value has to be set at two (or more) slots.
+
+```php
+
+$m = new Matrix();
+$i = $m->addSet('i', [2, 3]);
+$m->addAlias('j', $i);
+
+print_r($m->toArray());
+
+Array
+(
+    [0] => Array
+        (
+            [i] => 2
+            [j] => 2
+        )
+
+    [1] => Array
+        (
+            [i] => 3
+            [j] => 3
         )
 
 )
