@@ -10,13 +10,12 @@
 
 namespace Datacombinator\Values;
 
-class Constant extends Values {
-    public function __construct($value) {
+class Alias extends Values {
+    public function __construct(Values $value) {
         $this->values = $value;
     }
 
     public function generate($r): \Generator {
-        $this->lastValue = $this->values;
-        yield $this->values;
+        yield $this->values->lastValue();
     }
 }

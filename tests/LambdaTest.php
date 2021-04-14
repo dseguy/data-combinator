@@ -62,7 +62,9 @@ final class LambdaTest extends TestCase
         $m1 = new Matrix();
 
         $m1->addConstant('a1', 11);
-        $m1->addLambda('b', function (array $r) : string { return $r['c']['a1'] . 'a'; });
+        $m1->addLambda('b', function (array $r) : string { 
+            return $r['c']['a1'] . 'a'; 
+        });
 
         $m2 = new Matrix();
 

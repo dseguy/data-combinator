@@ -18,6 +18,7 @@ class Set extends Values {
 
     public function generate($r): \Generator {
         foreach($this->values as $value) {
+            $this->lastValue = $value;
             yield $value;
         }
     }

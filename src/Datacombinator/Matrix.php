@@ -18,8 +18,10 @@ use Datacombinator\Values\Permute;
 use Datacombinator\Values\Combine;
 use Datacombinator\Values\Factory;
 use Datacombinator\Values\Copy;
+use Datacombinator\Values\Values;
+use Datacombinator\Values\Alias;
 
-class Matrix {
+class Matrix extends Values {
     public const TYPE_ARRAY = 1;
     public const TYPE_LIST = 2;
     private $seeds = array();
@@ -29,57 +31,69 @@ class Matrix {
     private $id = 0;
     private $cache = null;
 
-    public function __construct() {
-
-    }
-
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Constant($value);
     }
 
-    public function addSet($name, iterable $value) {
+    public function addSet($name, iterable $value): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Set($value);
+
+        return $this->seeds[$name];
     }
 
-    public function addCopy($name, object $value) {
+    public function addAlias($name, Values $value): Values {
+        $this->seeds[$name] = new Alias($value);
+
+        return $this->seeds[$name];
+    }
+
+    public function addCopy($name, object $value): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Copy($value);
+
+        return $this->seeds[$name];
     }
 
-    public function addLambda($name, callable $value) {
+    public function addLambda($name, callable $value): Values {
         $name = $this->makeId($name);
         if (!is_callable($value)) {
             throw new \TypeError('Value is not callable');
         }
 
         $this->seeds[$name] = new Lambda($value);
+        return $this->seeds[$name];
     }
 
-    public function addMatrix(?string $name, Matrix $matrix) {
+    public function addMatrix(?string $name, Matrix $matrix): Values {
         if ($matrix === $this) {
             throw new \Exception('Cannot nest matrices');
         }
 
         $name = $this->makeId($name);
         $this->seeds[$name] = $matrix;
+
+        return $this->seeds[$name];
     }
 
-    public function addPermute($name, array $value) {
+    public function addPermute($name, array $value): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Permute($value);
+        return $this->seeds[$name];
     }
 
-    public function addCombine($name, array $value) {
+    public function addCombine($name, array $value): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Combine($value);
+        return $this->seeds[$name];
     }
 
     //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
-    public function addObject($name, $class, $matrix) {
+    public function addObject($name, $class, $matrix): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Factory($class, $matrix);
+        return $this->seeds[$name];
     }
 
     public function setClass($class): void {
@@ -105,7 +119,11 @@ class Matrix {
         }
     }
 
-    public function generate(array $previousSeeds = array(), &$previous = ''): \Generator {
+    public function generate($r = array()): \Generator {
+        yield from $this->generate2($r);
+    }
+
+    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
         if ($this->cache !== null) {
             yield from $this->cache;
 
@@ -131,13 +149,12 @@ class Matrix {
     }
 
     private function process(array $seeds) {
-
-        $previous = array();
-        foreach($this->previous as $a => $b) {
-            $previous[$a] = $b;
-        }
-
         if (empty($seeds)) {
+            $previous = array();
+            foreach($this->previous as $a => $b) {
+                $previous[$a] = $b;
+            }
+
             if ($this->class === self::TYPE_ARRAY) {
                 yield $previous;
             } elseif ($this->class === self::TYPE_LIST) {
@@ -165,7 +182,7 @@ class Matrix {
         $p = array_keys($seeds)[0];
         $value = $seeds[$p];
         unset($seeds[$p]);
-        if ($value instanceof self) {
+        if ($value instanceof Matrix) {
             $value->resetCache();
         }
 
@@ -176,10 +193,18 @@ class Matrix {
             $this->previous[$p] = &$slot;
         }
 
-        foreach($value->generate($this->previousSeeds, $slot) as $generated) {
-            $slot = $generated;
+        if ($value instanceof Matrix) {
+            foreach($value->generate2($this->previousSeeds, $slot) as $generated) {
+                $slot = $generated;
 
-            yield from $this->process($seeds);
+                yield from $this->process($seeds);
+            }
+        } else {
+            foreach($value->generate($this->previousSeeds, $slot) as $generated) {
+                $slot = $generated;
+
+                yield from $this->process($seeds);
+            }
         }
     }
 

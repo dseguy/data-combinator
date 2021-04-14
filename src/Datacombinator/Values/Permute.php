@@ -25,6 +25,7 @@ class Permute extends Values {
 
     private function permute(array $array, array $yield = array()) {
         if (empty($array)) {
+            $this->lastValue = $yield;
             yield $yield;
 
             return;

@@ -12,6 +12,7 @@ namespace Datacombinator\Values;
 
 abstract class Values {
     private static $uniqueId = 0;
+    protected $lastValue = null;
 
     abstract public function generate($r): \Generator;
 
@@ -29,6 +30,10 @@ abstract class Values {
         }
 
         return self::$uniqueId++;
+    }
+
+    public function lastValue() {
+        return $this->lastValue;
     }
 }
 

@@ -22,12 +22,11 @@ class Combine extends Values {
     // [] yields []
     public function generate($r): \Generator {
         yield from $this->combine($this->values);
-
-
     }
 
     private function combine(array $array) {
         if (empty($array)) {
+            $this->lastValue = array();
             yield array();
 
             return;
@@ -39,6 +38,7 @@ class Combine extends Values {
 
         foreach($this->combine($array2) as $v) {
             $v[] = $a;
+            $this->lastValue = $v;
             yield $v;
         }
     }
