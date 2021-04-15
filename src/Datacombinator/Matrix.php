@@ -30,6 +30,8 @@ class Matrix extends Values {
     private $class = self::TYPE_ARRAY;
     private $id = 0;
     private $cache = null;
+    private $missedProperties = array();
+    private $extraProperties = array();
 
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
@@ -87,6 +89,23 @@ class Matrix extends Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Combine($value);
         return $this->seeds[$name];
+    }
+
+    public function addSimple(array $values): array {
+        $return = array();
+        foreach($values as $name => $value) {
+            if (is_scalar($value)) {
+                $return[] = $this->addConstant($name, $value);
+            } elseif (is_array($value)) {
+                $return[] = $this->addSet($name, $value);
+            } elseif (is_callable($value)) {
+                $return[] = $this->addLambda($name, $value);
+            } else {
+                // Ignored
+            }
+        }
+
+        return $return;
     }
 
     //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
@@ -166,12 +185,18 @@ class Matrix extends Values {
                 $yield = new $class();
 
                 // only use accessible values
+                $this->missedProperties = array();
                 foreach(get_class_vars($class) as $name => $value) {
                     // skip undefined values, to use the default value.
                     if (isset($previous[$name])) {
                         $yield->$name = $previous[$name];
+                        unset($previous[$name]);
+                    } else {
+                        $this->missedProperties[] = $name;
                     }
                 }
+
+                $this->extraProperties = array_keys($previous);
 
                 yield $yield;
             }
@@ -182,9 +207,6 @@ class Matrix extends Values {
         $p = array_keys($seeds)[0];
         $value = $seeds[$p];
         unset($seeds[$p]);
-        if ($value instanceof Matrix) {
-            $value->resetCache();
-        }
 
         $slot = array();
         if (is_object($this->previous)) {
@@ -194,6 +216,8 @@ class Matrix extends Values {
         }
 
         if ($value instanceof Matrix) {
+            $value->resetCache();
+
             foreach($value->generate2($this->previousSeeds, $slot) as $generated) {
                 $slot = $generated;
 
@@ -252,6 +276,15 @@ class Matrix extends Values {
 
         return $name;
     }
+
+    public function missedProperties(): array {
+        return $this->missedProperties;
+    }
+
+    public function extraProperties(): array {
+        return $this->extraProperties;
+    }
+
 }
 
 ?>
