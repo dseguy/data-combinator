@@ -87,6 +87,18 @@ final class UniqueIdTest extends TestCase
             5
         );
     }
+
+    public function testUniqueIdWithStaticClosure(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('c', static function () : int { return 1;});
+        
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0]['c'],
+            1
+        );
+    }
 }
 
 function callback() {

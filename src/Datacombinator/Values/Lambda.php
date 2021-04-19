@@ -21,7 +21,12 @@ class Lambda extends Values {
     public function generate($r): \Generator {
         $closure = $this->callable;
         if ($closure instanceof \Closure)  {
-            $callable = $closure->bindTo($this);
+            $callable = @$closure->bindTo($this);
+
+            // In case the closure is static, we can't bindTo again, so we fallback to the previous version
+            if ($callable === null) {
+                $callable = $closure;
+            }
         } else {
             $callable = $closure;
         }

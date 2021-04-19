@@ -105,5 +105,23 @@ final class LambdaTest extends TestCase
         );
     }
 
+    public function testLambdaWrongReturnType(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('c', static function () : string { return [];});
+        
+        $caught = 0;
+        try {
+            $result = $m3->toArray();
+        } catch (\Throwable $e) {
+            $caught = 1;
+        } finally {
+            $this->assertEquals(
+                $caught,
+                1
+            );
+        }
+    }
+
 }
 
