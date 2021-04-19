@@ -33,6 +33,7 @@ class Matrix extends Values {
     private $cache = null;
     private $missedProperties = array();
     private $extraProperties = array();
+    private $inUse = false;
 
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
@@ -71,8 +72,13 @@ class Matrix extends Values {
 
     public function addMatrix(?string $name, Matrix $matrix): Values {
         if ($matrix === $this) {
-            throw new \Exception('Cannot nest matrices');
+            throw new \Exception('Cannot self-nest matrices');
         }
+
+        if ($matrix->inUse) {
+            throw new \Exception('This matrix is already set. Use "addAlias" instead.');
+        }
+        $matrix->inUse = true;
 
         $name = $this->makeId($name);
         $this->seeds[$name] = $matrix;
@@ -154,16 +160,16 @@ class Matrix extends Values {
     }
 
     public function generate($r = array()): \Generator {
-        yield from $this->generate2($r);
-    }
-
-    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
         if ($this->cache !== null) {
             yield from $this->cache;
 
             return;
         }
 
+        yield from $this->generate2($r);
+    }
+
+    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
         $cache = array();
 
         $this->previousSeeds = $previousSeeds;
@@ -176,6 +182,7 @@ class Matrix extends Values {
 
         foreach($this->process($this->seeds) as $yield) {
             $cache[] = $yield;
+            $this->lastValue = $yield;
             yield $yield;
         }
 
@@ -299,7 +306,6 @@ class Matrix extends Values {
     public function extraProperties(): array {
         return $this->extraProperties;
     }
-
 }
 
 ?>

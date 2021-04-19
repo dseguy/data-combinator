@@ -123,5 +123,37 @@ final class LambdaTest extends TestCase
         }
     }
 
+    public function testLambdaWithSetClass(): void
+    {
+        $m1 = new Matrix();
+
+        $m1->addConstant('a1', 11);
+        $m1->addLambda('b', function (array $r) : string { 
+            return $r['c'][0]['a1'] . 'a'; 
+        });
+        $m1->setClass(x6::class);
+        
+        $m2 = new Matrix();
+        $m2->addMatrix(null, $m1);
+
+        $m3 = new Matrix();
+        $m3->addConstant('a3', 13);
+        $m3->addSet('b3', [13, 23]);
+        $m3->addMatrix('c', $m2);
+
+        $result = $m3->toArray();
+        $x6 = new x6;
+        $x6->a1 = 11;
+        $x6->b = '11a';
+        $this->assertEquals(
+            $result[0],
+            array ('a3' => 13, 'b3' => 13, 'c' => array (0 => $x6), ) 
+        );
+    }
 }
 
+class x6 {
+    public $a1;
+    public $b;
+    
+}
