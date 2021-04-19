@@ -20,6 +20,7 @@ use Datacombinator\Values\Factory;
 use Datacombinator\Values\Copy;
 use Datacombinator\Values\Values;
 use Datacombinator\Values\Alias;
+use Datacombinator\Values\Sequence;
 
 class Matrix extends Values {
     public const TYPE_ARRAY = 1;
@@ -88,6 +89,20 @@ class Matrix extends Values {
     public function addCombine($name, array $value): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Combine($value);
+        return $this->seeds[$name];
+    }
+
+    public function addSequence($name, int $min = 0, int $max = 10, callable $value = null): Values {
+        $name = $this->makeId($name);
+        if ($value === null) {
+            $value = function (int $i): int { return $i; };
+        }
+
+        if ($min >= $max) {
+            throw new \Exception("min should be more than max $min $max");
+        }
+
+        $this->seeds[$name] = new Sequence($min, $max, $value);
         return $this->seeds[$name];
     }
 

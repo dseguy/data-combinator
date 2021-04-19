@@ -1,8 +1,8 @@
 # Data Combinator for PHP 
 
-When you want to list all possible combinations.
+When you want to list all possible combinations of various lists of data.
 
-From ```[[1, 2], [3, 4]] ``` to 
+I.e., from ```[[1, 2], [3, 4]] ``` to 
 
 ```
 [
@@ -13,13 +13,13 @@ From ```[[1, 2], [3, 4]] ``` to
 ] 
 ```
 
-Allows you to create lots of data by combining them together! 
+This component allows you to create large dataset by combining each possible values with the others. 
 
 # Applications
 
 * Generates all possible combinations for a command line tool
-* Generates numerous variations for incoming data
-* Produces structured data easily 
+* Generates all variations for incoming data
+* Produces structured data 
 
 ### Installation
 
@@ -82,9 +82,11 @@ Array
 * [addCombine()](#addCombine) - creates all combinations from a list 
 * [addCopy()](#addCopy) - clones objects instead of copying them by value
 * [addMatrix()](#addMatrix) - nests matrices within matrices
-* [addAlias()](#addAlias) - reuse a previously generateur value
+* [addAlias()](#addAlias) - reuses a previously generateur value
+* [addSequence()](#addSequence) - creates values that differ by their identifier
 * [setClass()](#setClass) - selects the resulting object type : array, list or object
 * [count()](#count) - estimates the number of elements that will be produced
+* [toArray()](#toArray) - returns all the possible combinaisons as an array
 
 <a name="Common-behaviors"></a>
 ### Common-behaviors
@@ -465,6 +467,40 @@ Array
 )
 ```
 
+<a name="addSequence"></a>
+### addSequence
+
+Generates sequential data, from min to max, optionally updated by a closure. 
+
+```php
+
+$m = new Matrix();
+$i = $m->addSequence('i', 0, 10);
+
+print_r($m->toArray());
+
+Array
+(
+    [0] => Array
+        (
+            [i] => 0
+        )
+    [1] => Array
+        (
+            [i] => 1
+        )
+    [2] => Array
+        (
+            [i] => 2
+        )
+// ....
+    [9] => Array
+        (
+            [i] => 9
+        )
+)
+```
+
 <a name="setClass"></a>
 ### setClass
 
@@ -529,12 +565,65 @@ print $m->count()." elements";
 // 4 elements
 ```
 
+<a name="toArray"></a>
+### toArray
+
+Returns all the possible combinaisons as an array
+
+```php
+
+$m = new Datacombinator\Matrix();
+$m->addSet('x', [1,2]);
+$m->addSet('y', [4,5]);
+print_r($m->toArray());
+
+Array
+(
+    [0] => Array
+        (
+            [x] => 1
+            [y] => 4
+        )
+
+    [1] => Array
+        (
+            [x] => 1
+            [y] => 5
+        )
+
+    [2] => Array
+        (
+            [x] => 2
+            [y] => 4
+        )
+
+    [3] => Array
+        (
+            [x] => 2
+            [y] => 5
+        )
+
+)
+```
+
+## FAQ
+
+### How to shuffle the results? 
+
+Use the toArray() method, and apply the PHP native shuffle() function on it.
+
+### How to limit the results? 
+
+Use foreach() with the generate() method, and count the number of element needed. Then, break when all the needed results were yielded.
+
+
 ## TODO
 
+* inject the destination via reference, instead of a name of function
+* help static analysis by making easy to recognize the use properties and methods in the created objects
+* create variables instead of arrays/objects
 * add supports for setters and factories, __constructor with arguments
-* add supports for partitions of arrays [[1], [1]], [[2]] 
-* add supports for aliases (reusing a set of value that is already defined in another part of the generator)
+* add supports for partitions of arrays [2] => [[1], [1]], [[2]], 
 * produces data list for documentation
-* FAQ/HOW-to
 
 * Cannot add support for references. Use objects instead. 
