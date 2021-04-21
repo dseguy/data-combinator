@@ -73,6 +73,135 @@ final class CacheTest extends TestCase
             $second[1]['a'],
             $third[1]['a'],
         );
+    }
 
+    public function testGenerateMatrixLevel2WithCache(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+
+        $matrix2 = new Matrix();
+        $matrix2->addSet('b', [1, 2]);
+        $matrix2->addMatrix('c', $matrix, true);
+
+        $results = $matrix2->toArray();
+
+        $this->assertEquals(
+            '1 in b',
+            $results[0]['c']['a'],
+        );
+        $this->assertEquals(
+            '1 in b',
+            $results[1]['c']['a'],
+        );
+    }
+
+    public function testGenerateMatrixLevel2WithoutCache(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+
+        $matrix2 = new Matrix();
+        $matrix2->addSet('b', [1, 2]);
+        $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
+
+        $results = $matrix2->toArray();
+
+        $this->assertEquals(
+            $results[0]['c']['a'],
+            '1 in b',
+        );
+        $this->assertEquals(
+            $results[1]['c']['a'],
+            '2 in b',
+        );
+    }
+
+    public function testGenerateMatrixLevel3WithoutCache(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+
+        $matrix2 = new Matrix();
+        $matrix2->addSet('b', [1, 2]);
+//        $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
+
+        $matrix3 = new Matrix();
+        $matrix3->addSet('b', [11, 21]);
+        $matrix3->addMatrix('d', $matrix2, Matrix::WITHOUT_CACHE);
+
+        $results = $matrix3->toArray();
+        print_r($results);
+die();
+        // [d][c]
+        $this->assertEquals(
+            $results[0]['d']['c']['a'],
+            '11 in b',
+        );
+        $this->assertEquals(
+            $results[1]['d']['c']['a'],
+            '11 in b',
+        );
+
+        $this->assertEquals(
+            $results[2]['d']['c']['a'],
+            '21 in b',
+        );
+        $this->assertEquals(
+            $results[3]['d']['c']['a'],
+            '21 in b',
+        );
+
+        // [d][b]
+        $this->assertEquals(
+            $results[0]['d']['b'],
+            1,
+        );
+        $this->assertEquals(
+            $results[1]['d']['b'],
+            2,
+        );
+
+        $this->assertEquals(
+            $results[2]['d']['b'],
+            1,
+        );
+        $this->assertEquals(
+            $results[3]['d']['b'],
+            2,
+        );
+    }
+
+    public function testGenerateMatrixLevel3WithCache(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+
+        $matrix2 = new Matrix();
+        $matrix2->addSet('b', [1, 2]);
+        $matrix2->addMatrix('c', $matrix);
+
+        $matrix3 = new Matrix();
+        $matrix3->addSet('b', [11, 21]);
+        $matrix3->addMatrix('d', $matrix2);
+
+        $results = $matrix3->toArray();
+
+        $this->assertArrayNotHasKey(
+            'd',
+            $results[0]['d']
+        );
+        $this->assertArrayNotHasKey(
+            'd',
+            $results[1]['d']
+        );
+        $this->assertArrayNotHasKey(
+            'd',
+            $results[2]['d']
+        );
+        $this->assertArrayNotHasKey(
+            'd',
+            $results[3]['d']
+        );
     }
 }

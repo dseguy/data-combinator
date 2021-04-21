@@ -54,7 +54,7 @@ final class MultipleUseTest extends TestCase
         $matrix->addConstant('a', 1);
         
         $m2 = new Matrix();
-        $d = $m2->addMatrix('c', $matrix);
+        $d = $m2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
         $m2->addAlias('d', $d);
 
         $result = $m2->toArray();

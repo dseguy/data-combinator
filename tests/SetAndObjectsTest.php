@@ -17,7 +17,7 @@ final class SetAndObjectsTest extends TestCase
 
         $matrix1 = new Matrix();
         $matrix1->addSet('s', [11,12]);
-        $matrix1->addMatrix('m', $matrix2);
+        $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
         
         $results = $matrix1->toArray();
         $this->assertEquals(
@@ -42,7 +42,7 @@ final class SetAndObjectsTest extends TestCase
 
         $matrix1 = new Matrix();
         $matrix1->addSet('s', [11,12]);
-        $matrix1->addMatrix('m', $matrix2);
+        $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
         
         $results = $matrix1->toArray();
         $this->assertEquals(

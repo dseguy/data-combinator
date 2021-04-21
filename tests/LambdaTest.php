@@ -69,7 +69,7 @@ final class LambdaTest extends TestCase
         $m2 = new Matrix();
 
         $m2->addConstant('a2', 12);
-        $m2->addMatrix('c', $m1);
+        $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
         $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a2'].$r['c']['a1']; });
 
         $result = $m2->toArray();
@@ -89,13 +89,13 @@ final class LambdaTest extends TestCase
         $m2 = new Matrix();
 
         $m2->addConstant('a2', 12);
-        $m2->addMatrix('c', $m1);
+        $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
         $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2']; });
 
         $m3 = new Matrix();
 
         $m3->addConstant('a3', 13);
-        $m3->addMatrix('c', $m2);
+        $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
         $m3->addLambda('b3', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2'].$r['c']['c']['a1']; });
 
         $result = $m3->toArray();
@@ -134,12 +134,12 @@ final class LambdaTest extends TestCase
         $m1->setClass(x6::class);
         
         $m2 = new Matrix();
-        $m2->addMatrix(null, $m1);
+        $m2->addMatrix(null, $m1, Matrix::WITHOUT_CACHE);
 
         $m3 = new Matrix();
         $m3->addConstant('a3', 13);
         $m3->addSet('b3', [13, 23]);
-        $m3->addMatrix('c', $m2);
+        $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
 
         $result = $m3->toArray();
         $x6 = new x6;
