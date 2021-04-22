@@ -119,16 +119,12 @@ final class AliasTest extends TestCase
         
         $m2 = new Matrix();
         $a = $m2->addSet('a', [1, 2]);
-//        $a = $m2->addConstant('a',3);
 
         // the alias is added before the matrix which contains the original
         $matrix->addAlias('j', $a);
         $matrix->addMatrix('b', $m2, Matrix::WITHOUT_CACHE);
-//        $matrix->addSet('j', [34, 33]);
 
         $results = $matrix->toArray();
-        print_r($results);
-        die();
 
         $this->assertEquals(
             $results[0]['j'],

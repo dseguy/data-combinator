@@ -81,11 +81,10 @@ final class CacheTest extends TestCase
         $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b', [1, 2]);
-        $matrix2->addMatrix('c', $matrix, true);
+        $matrix2->addSet('b', [1, 2, 3]);
+        $matrix2->addMatrix('c', $matrix, Matrix::WITH_CACHE);
 
         $results = $matrix2->toArray();
-
         $this->assertEquals(
             '1 in b',
             $results[0]['c']['a'],
@@ -123,17 +122,15 @@ final class CacheTest extends TestCase
         $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b', [1, 2]);
-//        $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
+        $matrix2->addSet('b2', [111, 211]);
+        $matrix2->addSet('b3', [113, 213]);
+        $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
 
         $matrix3 = new Matrix();
         $matrix3->addSet('b', [11, 21]);
         $matrix3->addMatrix('d', $matrix2, Matrix::WITHOUT_CACHE);
 
         $results = $matrix3->toArray();
-        print_r($results);
-die();
-        // [d][c]
         $this->assertEquals(
             $results[0]['d']['c']['a'],
             '11 in b',
@@ -142,33 +139,23 @@ die();
             $results[1]['d']['c']['a'],
             '11 in b',
         );
-
         $this->assertEquals(
-            $results[2]['d']['c']['a'],
+            $results[4]['d']['c']['a'],
             '21 in b',
         );
         $this->assertEquals(
-            $results[3]['d']['c']['a'],
+            $results[5]['d']['c']['a'],
             '21 in b',
         );
 
         // [d][b]
         $this->assertEquals(
-            $results[0]['d']['b'],
-            1,
+            $results[0]['d']['b2'],
+            111,
         );
         $this->assertEquals(
-            $results[1]['d']['b'],
-            2,
-        );
-
-        $this->assertEquals(
-            $results[2]['d']['b'],
-            1,
-        );
-        $this->assertEquals(
-            $results[3]['d']['b'],
-            2,
+            $results[2]['d']['b2'],
+            211,
         );
     }
 

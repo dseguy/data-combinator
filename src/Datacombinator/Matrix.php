@@ -25,7 +25,14 @@ use Datacombinator\Values\Sequence;
 class Matrix extends Values {
     public const TYPE_ARRAY = 1;
     public const TYPE_LIST = 2;
-    private $seeds = array();
+
+    public const WITH_CACHE = 'cache';
+    public const WITHOUT_CACHE = 'nocache';
+
+    private $seeds = array('all' => array(),
+                           'alias' => array(),
+                           );
+    private $flattenedSeeds = false;
     private $previousSeeds = array();
     private $previous = array();
     private $class = self::TYPE_ARRAY;
@@ -34,30 +41,33 @@ class Matrix extends Values {
     private $missedProperties = array();
     private $extraProperties = array();
     private $inUse = false;
+    private $useCache = self::WITHOUT_CACHE;
 
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
-        $this->seeds[$name] = new Constant($value);
+        $this->seeds['all'][$name] = new Constant($value);
+
+        return $this->seeds['all'][$name];
     }
 
     public function addSet($name, iterable $value): Values {
         $name = $this->makeId($name);
-        $this->seeds[$name] = new Set($value);
+        $this->seeds['all'][$name] = new Set($value);
 
-        return $this->seeds[$name];
+        return $this->seeds['all'][$name];
     }
 
     public function addAlias($name, Values $value): Values {
-        $this->seeds[$name] = new Alias($value);
+        $this->seeds['alias'][$name] = new Alias($value);
 
-        return $this->seeds[$name];
+        return $this->seeds['alias'][$name];
     }
 
     public function addCopy($name, object $value): Values {
         $name = $this->makeId($name);
-        $this->seeds[$name] = new Copy($value);
+        $this->seeds['all'][$name] = new Copy($value);
 
-        return $this->seeds[$name];
+        return $this->seeds['all'][$name];
     }
 
     public function addLambda($name, callable $value): Values {
@@ -66,11 +76,11 @@ class Matrix extends Values {
             throw new \TypeError('Value is not callable');
         }
 
-        $this->seeds[$name] = new Lambda($value);
-        return $this->seeds[$name];
+        $this->seeds['all'][$name] = new Lambda($value);
+        return $this->seeds['all'][$name];
     }
 
-    public function addMatrix(?string $name, Matrix $matrix): Values {
+    public function addMatrix(?string $name, Matrix $matrix, string $useCache = self::WITHOUT_CACHE): Values {
         if ($matrix === $this) {
             throw new \Exception('Cannot self-nest matrices');
         }
@@ -79,23 +89,24 @@ class Matrix extends Values {
             throw new \Exception('This matrix is already set. Use "addAlias" instead.');
         }
         $matrix->inUse = true;
+        $matrix->useCache = $useCache;
 
         $name = $this->makeId($name);
-        $this->seeds[$name] = $matrix;
+        $this->seeds['all'][$name] = $matrix;
 
-        return $this->seeds[$name];
+        return $this->seeds['all'][$name];
     }
 
     public function addPermute($name, array $value): Values {
         $name = $this->makeId($name);
-        $this->seeds[$name] = new Permute($value);
-        return $this->seeds[$name];
+        $this->seeds['all'][$name] = new Permute($value);
+        return $this->seeds['all'][$name];
     }
 
     public function addCombine($name, array $value): Values {
         $name = $this->makeId($name);
-        $this->seeds[$name] = new Combine($value);
-        return $this->seeds[$name];
+        $this->seeds['all'][$name] = new Combine($value);
+        return $this->seeds['all'][$name];
     }
 
     public function addSequence($name, int $min = 0, int $max = 10, callable $value = null): Values {
@@ -108,8 +119,8 @@ class Matrix extends Values {
             throw new \Exception("min should be more than max $min $max");
         }
 
-        $this->seeds[$name] = new Sequence($min, $max, $value);
-        return $this->seeds[$name];
+        $this->seeds['all'][$name] = new Sequence($min, $max, $value);
+        return $this->seeds['all'][$name];
     }
 
     public function addSimple(array $values): array {
@@ -160,17 +171,22 @@ class Matrix extends Values {
     }
 
     public function generate($r = array()): \Generator {
-        if ($this->cache !== null) {
+        yield from $this->generate2($r);
+    }
+
+    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
+        if ($this->useCache === self::WITH_CACHE && $this->cache !== null) {
             yield from $this->cache;
 
             return;
         }
 
-        yield from $this->generate2($r);
-    }
-
-    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
         $cache = array();
+
+        if (!$this->flattenedSeeds) {
+            $this->seeds = array_merge(...array_values($this->seeds));
+            $this->flattenedSeeds = true;
+        }
 
         $this->previousSeeds = $previousSeeds;
 
@@ -234,19 +250,27 @@ class Matrix extends Values {
         if (is_object($this->previous)) {
             $this->previous->$p = &$slot;
         } else {
+            unset($this->previous[$p]);
             $this->previous[$p] = &$slot;
         }
 
         if ($value instanceof Matrix) {
-            $value->resetCache();
+            if ($value->useCache === self::WITHOUT_CACHE) {
+                $value->resetCache();
 
-            foreach($value->generate2($this->previousSeeds, $slot) as $generated) {
-                $slot = $generated;
+                $a = array();
+                $b=  &$a;
+                foreach($value->generate2($this->previousSeeds, $b) as $generated) {
+                    $slot = $generated;
 
-                yield from $this->process($seeds);
+                    yield from $this->process($seeds);
+                }
+            } else {
+                // Just yield the first one
+                yield $value->generate2($this->previousSeeds, $slot)->current();
             }
         } else {
-            foreach($value->generate($this->previousSeeds, $slot) as $generated) {
+            foreach($value->generate($this->previousSeeds) as $generated) {
                 $slot = $generated;
 
                 yield from $this->process($seeds);
@@ -284,7 +308,18 @@ class Matrix extends Values {
 
     public function count(): int {
         $r = 1;
-        foreach($this->seeds as $seed) {
+
+        if ($this->useCache === self::WITH_CACHE){
+            return 1;
+        }
+
+        if ($this->flattenedSeeds) {
+            $seeds = $this->seeds;
+        } else {
+            $seeds = array_merge(...array_values($this->seeds));
+        }
+
+        foreach($seeds as $seed) {
             $r *= $seed->count();
         }
 
