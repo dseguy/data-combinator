@@ -78,7 +78,7 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel2WithCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+        $matrix->addLambda('a', function ($r) { return ($r['b'] ?? 'Z').' in b'; });
 
         $matrix2 = new Matrix();
         $matrix2->addSet('b', [1, 2, 3]);

@@ -41,7 +41,7 @@ class Matrix extends Values {
     private $missedProperties = array();
     private $extraProperties = array();
     private $inUse = false;
-    private $useCache = self::WITHOUT_CACHE;
+    private $useCache = self::WITH_CACHE;
 
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
@@ -266,8 +266,7 @@ class Matrix extends Values {
                     yield from $this->process($seeds);
                 }
             } else {
-                // Just yield the first one
-                yield $value->generate2($this->previousSeeds, $slot)->current();
+                yield $value->toArray()[0];
             }
         } else {
             foreach($value->generate($this->previousSeeds) as $generated) {
@@ -309,10 +308,6 @@ class Matrix extends Values {
     public function count(): int {
         $r = 1;
 
-        if ($this->useCache === self::WITH_CACHE){
-            return 1;
-        }
-
         if ($this->flattenedSeeds) {
             $seeds = $this->seeds;
         } else {
@@ -320,7 +315,10 @@ class Matrix extends Values {
         }
 
         foreach($seeds as $seed) {
-            $r *= $seed->count();
+            if (!$seed instanceof Matrix ||
+                $seed->useCache === self::WITHOUT_CACHE) {
+                $r *= $seed->count();
+            }
         }
 
         return $r;
