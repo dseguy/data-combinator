@@ -220,9 +220,27 @@ class Matrix extends Values {
                     yield from $this->process($seeds);
                 }
             } else {
-                yield $value->toArray()[0];
+                $x = $value->getSack();
+                $w = $this->previous;
+                $this->previous->$p = $x;
+                $this->previous = $x;
+
+                foreach($value->generate2($this->p1) as $id => $generated) {
+                    if ($id !== 0) {
+                        // Seems to be a wrong way to read only the first value of the generator
+                        // It mimics the structure of the previous block
+                        break;
+                    }
+                    foreach($generated as $a => $b) {
+                        $this->previous->$a = $b;
+                    }
+                    $this->previous = $w;
+
+                    yield from $this->process($seeds);
+                }
             }
         } else {
+
             foreach($value->generate($this->p1) as $generated) {
                 $this->previous->$p = $generated;
 

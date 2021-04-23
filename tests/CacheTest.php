@@ -78,20 +78,25 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel2WithCache(): void
     {
         $matrix = new Matrix();
+        $matrix->addSet('b1', [1]); //, 2, 3
         $matrix->addLambda('a', function ($r) { return ($r['b'] ?? 'Z').' in b'; });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b', [1, 2, 3]);
+        $matrix2->addSet('b', [21, 22, 23]);
         $matrix2->addMatrix('c', $matrix, Matrix::WITH_CACHE);
 
         $results = $matrix2->toArray();
         $this->assertEquals(
-            '1 in b',
+            '21 in b',
             $results[0]['c']['a'],
         );
         $this->assertEquals(
-            '1 in b',
+            '21 in b',
             $results[1]['c']['a'],
+        );
+        $this->assertEquals(
+            '21 in b',
+            $results[2]['c']['a'],
         );
     }
 

@@ -51,8 +51,15 @@ class Sack {
                 }
                 return $return;
             } elseif ($this->class === strtolower(\Stdclass::class)) {
-                // todo
-                return (object) $previous;
+                $return = array();
+                foreach($this->values as $name => $value) {
+                    if ($value instanceof self) {
+                        $return[$name] = $value->toArray();
+                    } else {
+                        $return[$name] = $value;
+                    }
+                }
+                return (object) $return;
             } else {
                 $class = $this->class;
                 $yield = new $class();
