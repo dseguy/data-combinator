@@ -31,7 +31,7 @@ class Lambda extends Values {
             $callable = $closure;
         }
 
-        $this->lastValue = $callable($r);
+        $this->lastValue = $callable($r->toArray());
         yield $this->lastValue;
     }
 }

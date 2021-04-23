@@ -61,8 +61,9 @@ final class LambdaTest extends TestCase
     {
         $m1 = new Matrix();
 
-        $m1->addConstant('a1', 11);
-        $m1->addLambda('b', function (array $r) : string { 
+//        $m1->addConstant('a1', 11);
+        $m1->addSet('a1', [11, 12]);
+        $m1->addLambda('b1', function (array $r) : string { 
             return $r['c']['a1'] . 'a'; 
         });
 
@@ -74,8 +75,12 @@ final class LambdaTest extends TestCase
 
         $result = $m2->toArray();
         $this->assertEquals(
+            ['a2' => 12, 
+             'c' => ['a1' => 11, 
+                     'b1' => '11a' ], 
+            'b2' => 'b1211',
+            ],
             $result[0],
-            ['a2' => 12, 'c' => ['a1' => 11, 'b' => '11a' ], 'b2' => 'b1211']
         );
     }
 
@@ -127,33 +132,91 @@ final class LambdaTest extends TestCase
     {
         $m1 = new Matrix();
 
-        $m1->addConstant('a1', 11);
-        $m1->addLambda('b', function (array $r) : string { 
-            return $r['c'][0]['a1'] . 'a'; 
+        $m1->addSet('a1', [11]); // , 12, 13
+        $m1->addConstant('a2', 142);
+        $m1->addLambda('b1', function ($r) : string { 
+            return $r[0]->a1 . 'a'; 
         });
         $m1->setClass(x6::class);
         
         $m2 = new Matrix();
         $m2->addMatrix(null, $m1, Matrix::WITHOUT_CACHE);
+        // type list upon simple usage of null ? too magic
 
         $m3 = new Matrix();
         $m3->addConstant('a3', 13);
-        $m3->addSet('b3', [13, 23]);
+        $m3->addSet('b3', [14]); // 24
         $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
 
         $result = $m3->toArray();
+
         $x6 = new x6;
         $x6->a1 = 11;
-        $x6->b = '11a';
+        $x6->a2 = 142;
+        $x6->b1 = '11a';
         $this->assertEquals(
             $result[0],
-            array ('a3' => 13, 'b3' => 13, 'c' => array (0 => $x6), ) 
+            array('a3' => 13, 
+                  'b3' => 14, 
+                  'c'  => [$x6], 
+                 ) 
+        );
+    }
+
+    public function testLambdaWithSetClassAndSet2(): void
+    {
+        $m1 = new Matrix();
+
+        $m1->addSet('a1', [11, 12]); // , 13
+        $m1->addConstant('a2', 142);
+        $m1->addLambda('b1', function ($r) : string { 
+            return $r[0]->a1 . 'a'; 
+        });
+        $m1->setClass(x6::class);
+        
+        $m2 = new Matrix();
+        $m2->addMatrix(null, $m1, Matrix::WITHOUT_CACHE);
+        // type list upon simple usage of null ? too magic
+
+        $m3 = new Matrix();
+        $m3->addConstant('a3', 13);
+        $m3->addSet('b3', [14]); // 24
+        $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
+
+        $result = $m3->toArray();
+
+        $this->assertEquals(
+            count($result),
+            2
+        );
+        
+        $x6 = new x6;
+        $x6->a1 = 11;
+        $x6->a2 = 142;
+        $x6->b1 = '11a';
+        $this->assertEquals(
+            $result[0],
+            array('a3' => 13, 
+                  'b3' => 14, 
+                  'c'  => [$x6], 
+                 ) 
+        );
+
+        $x6 = new x6;
+        $x6->a1 = 12;
+        $x6->a2 = 142;
+        $x6->b1 = '12a';
+        $this->assertEquals(
+            $result[1],
+            array('a3' => 13, 
+                  'b3' => 14, 
+                  'c'  => [$x6], 
+                 ) 
         );
     }
 }
 
 class x6 {
-    public $a1;
-    public $b;
-    
+    public $a1, $a2;
+    public $b1 = 'b1-default';
 }

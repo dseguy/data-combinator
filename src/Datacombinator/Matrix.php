@@ -33,8 +33,11 @@ class Matrix extends Values {
                            'alias' => array(),
                            );
     private $flattenedSeeds = false;
+
     private $previousSeeds = array();
-    private $previous = array();
+    private Sack $p1;
+    private Sack $previous;
+
     private $class = self::TYPE_ARRAY;
     private $id = 0;
     private $cache = null;
@@ -42,6 +45,11 @@ class Matrix extends Values {
     private $extraProperties = array();
     private $inUse = false;
     private $useCache = self::WITH_CACHE;
+
+    public function __construct() {
+        $this->p1 = new Sack();
+        $this->previous = $this->p1;
+    }
 
     public function addConstant($name, $value) {
         $name = $this->makeId($name);
@@ -93,6 +101,7 @@ class Matrix extends Values {
 
         $name = $this->makeId($name);
         $this->seeds['all'][$name] = $matrix;
+        $matrix->setP1($this->p1);
 
         return $this->seeds['all'][$name];
     }
@@ -148,33 +157,16 @@ class Matrix extends Values {
     }
 
     public function setClass($class): void {
-
-        if (intval($class) !== 0 &&
-            in_array($class, array(self::TYPE_ARRAY, self::TYPE_LIST), true)) {
-            $this->class = $class;
-
-            return;
-        }
-
-        if (is_string($class)) {
-            if (!class_exists($class)) {
-                throw new \Exception('No such class');
-            }
-            $this->class = strtolower($class);
-
-            return;
-        }
-
-        if (!class_exists($class)) {
-            throw \Exception('No such Matrix type as ' . $class);
-        }
+        $this->previous->setClass($class);
+        $this->class = $class;
     }
 
-    public function generate($r = array()): \Generator {
-        yield from $this->generate2($r);
+    // todo : add Sack typehint
+    public function generate($r = null): \Generator {
+        yield from $this->generate2($this->previous);
     }
 
-    public function generate2(array &$previousSeeds = array(), &$previous = ''): \Generator {
+    public function generate2(Sack $sack): \Generator {
         if ($this->useCache === self::WITH_CACHE && $this->cache !== null) {
             yield from $this->cache;
 
@@ -188,14 +180,6 @@ class Matrix extends Values {
             $this->flattenedSeeds = true;
         }
 
-        $this->previousSeeds = $previousSeeds;
-
-        if ($previous === '') {
-            $this->previous = &$this->previousSeeds;
-        } else {
-            $this->previous = &$previous;
-        }
-
         foreach($this->process($this->seeds) as $yield) {
             $cache[] = $yield;
             $this->lastValue = $yield;
@@ -207,37 +191,9 @@ class Matrix extends Values {
 
     private function process(array $seeds) {
         if (empty($seeds)) {
-            $previous = array();
-            foreach($this->previous as $a => $b) {
-                $previous[$a] = $b;
-            }
+            $previous = $this->previous->toArray();
 
-            if ($this->class === self::TYPE_ARRAY) {
-                yield $previous;
-            } elseif ($this->class === self::TYPE_LIST) {
-                yield array_values($previous);
-            } elseif ($this->class === strtolower(\Stdclass::class)) {
-                yield (object) $previous;
-            } else {
-                $class = $this->class;
-                $yield = new $class();
-
-                // only use accessible values
-                $this->missedProperties = array();
-                foreach(get_class_vars($class) as $name => $value) {
-                    // skip undefined values, to use the default value.
-                    if (isset($previous[$name])) {
-                        $yield->$name = $previous[$name];
-                        unset($previous[$name]);
-                    } else {
-                        $this->missedProperties[] = $name;
-                    }
-                }
-
-                $this->extraProperties = array_keys($previous);
-
-                yield $yield;
-            }
+            yield $previous;
 
             return;
         }
@@ -246,22 +202,20 @@ class Matrix extends Values {
         $value = $seeds[$p];
         unset($seeds[$p]);
 
-        $slot = array();
-        if (is_object($this->previous)) {
-            $this->previous->$p = &$slot;
-        } else {
-            unset($this->previous[$p]);
-            $this->previous[$p] = &$slot;
-        }
-
         if ($value instanceof Matrix) {
             if ($value->useCache === self::WITHOUT_CACHE) {
                 $value->resetCache();
 
-                $a = array();
-                $b=  &$a;
-                foreach($value->generate2($this->previousSeeds, $b) as $generated) {
-                    $slot = $generated;
+                $x = $value->getSack();
+                $w = $this->previous;
+                $this->previous->$p = $x;
+                $this->previous = $x;
+
+                foreach($value->generate2($this->p1) as $generated) {
+                    foreach($generated as $a => $b) {
+                        $this->previous->$a = $b;
+                    }
+                    $this->previous = $w;
 
                     yield from $this->process($seeds);
                 }
@@ -269,8 +223,8 @@ class Matrix extends Values {
                 yield $value->toArray()[0];
             }
         } else {
-            foreach($value->generate($this->previousSeeds) as $generated) {
-                $slot = $generated;
+            foreach($value->generate($this->p1) as $generated) {
+                $this->previous->$p = $generated;
 
                 yield from $this->process($seeds);
             }
@@ -333,11 +287,19 @@ class Matrix extends Values {
     }
 
     public function missedProperties(): array {
-        return $this->missedProperties;
+        return $this->previous->missedProperties();
     }
 
     public function extraProperties(): array {
-        return $this->extraProperties;
+        return $this->previous->extraProperties();
+    }
+
+    public function setP1(Sack $sack) {
+        $this->p1 = $sack;
+    }
+
+    public function getSack(): Sack {
+        return $this->previous;
     }
 }
 
