@@ -135,7 +135,7 @@ final class LambdaTest extends TestCase
         $m1->addSet('a1', [11]); // , 12, 13
         $m1->addConstant('a2', 142);
         $m1->addLambda('b1', function ($r) : string { 
-            return $r[0]->a1 . 'a'; 
+            return $r['c'][0]->a1 . 'a'; 
         });
         $m1->setClass(x6::class);
         
@@ -170,7 +170,7 @@ final class LambdaTest extends TestCase
         $m1->addSet('a1', [11, 12]); // , 13
         $m1->addConstant('a2', 142);
         $m1->addLambda('b1', function ($r) : string { 
-            return $r[0]->a1 . 'a'; 
+            return $r['c'][0]->a1 . 'a'; 
         });
         $m1->setClass(x6::class);
         
@@ -203,9 +203,9 @@ final class LambdaTest extends TestCase
         );
 
         $x6 = new x6;
-        $x6->a1 = 12;
+        $x6->a1 = 11;
         $x6->a2 = 142;
-        $x6->b1 = '12a';
+        $x6->b1 = '11a';
         $this->assertEquals(
             $result[1],
             array('a3' => 13, 

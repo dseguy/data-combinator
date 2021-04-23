@@ -149,12 +149,14 @@ class Matrix extends Values {
         return $return;
     }
 
+    /*
     //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
     public function addObject($name, $class, $matrix): Values {
         $name = $this->makeId($name);
         $this->seeds[$name] = new Factory($class, $matrix);
         return $this->seeds[$name];
     }
+    */
 
     public function setClass($class): void {
         $this->previous->setClass($class);
@@ -265,7 +267,7 @@ class Matrix extends Values {
 
     public function toJson(string $filename = ''): int {
         if ($filename === '') {
-            throw \Exception('toJson requires a filename.');
+            throw new \Exception('toJson requires a filename.');
         }
 
         return file_put_contents($filename, json_encode($this->toArray()));

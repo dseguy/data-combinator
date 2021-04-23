@@ -109,7 +109,7 @@ class Sack {
         }
 
         if (!class_exists($class)) {
-            throw \Exception('No such Matrix type as ' . $class);
+            throw new \Exception('No such Matrix type as ' . $class);
         }
     }
 
