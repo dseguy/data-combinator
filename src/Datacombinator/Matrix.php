@@ -35,7 +35,7 @@ class Matrix extends Values {
     private $flattenedSeeds = false;
 
     private $previousSeeds = array();
-    private Sack $p1;
+    public Sack $p1;
     private Sack $previous;
 
     private $class = self::TYPE_ARRAY;
@@ -206,24 +206,19 @@ class Matrix extends Values {
             if ($value->useCache === self::WITHOUT_CACHE) {
                 $value->resetCache();
 
-                $x = $value->getSack();
-                $w = $this->previous;
-                $this->previous->$p = $x;
-                $this->previous = $x;
+                $current = $value->getSack();
+                $this->previous->$p = $current;
 
                 foreach($value->generate2($this->p1) as $generated) {
                     foreach($generated as $a => $b) {
-                        $this->previous->$a = $b;
+                        $current->$a = $b;
                     }
-                    $this->previous = $w;
 
                     yield from $this->process($seeds);
                 }
             } else {
-                $x = $value->getSack();
-                $w = $this->previous;
-                $this->previous->$p = $x;
-                $this->previous = $x;
+                $current = $value->getSack();
+                $this->previous->$p = $current;
 
                 foreach($value->generate2($this->p1) as $id => $generated) {
                     if ($id !== 0) {
@@ -232,9 +227,8 @@ class Matrix extends Values {
                         break;
                     }
                     foreach($generated as $a => $b) {
-                        $this->previous->$a = $b;
+                        $current->$a = $b;
                     }
-                    $this->previous = $w;
 
                     yield from $this->process($seeds);
                 }
@@ -314,6 +308,13 @@ class Matrix extends Values {
 
     public function setP1(Sack $sack) {
         $this->p1 = $sack;
+
+        // recursively set P1 to lower matrices too
+        foreach($this->seeds['all'] as $seed) {
+            if ($seed instanceof self) {
+                $seed->setP1($sack);
+            }
+        }
     }
 
     public function getSack(): Sack {

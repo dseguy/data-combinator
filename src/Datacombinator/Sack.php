@@ -20,6 +20,13 @@ class Sack {
     private $missedProperties = array();
     private $extraProperties = array();
 
+    private static $i = 0;
+    public $I = 0;
+
+    public function __construct() {
+        $this->I = ++self::$i;
+    }
+
     public function __get($name) {
         return $this->values[$name];
     }
