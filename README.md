@@ -173,7 +173,11 @@ Array
 <a name="addLambda"></a>
 ### addLambda
 
-This method adds a closure, a callback or an arrow function as a value. The closure will be called for each item to generate a new value. The closure will receive an (array) argument with all the previously created values (in the order of adding). That way, it may create a new value, based on previously generated values. 
+This method adds a closure, a callback or an arrow function as a value. The closure will be called for each item to generate a new value. 
+
+The closure receives an (array) argument with all the previously created values. That way, it may create a new value, based on previously generated values. That array is filled in the order of addition to the Matrix : in particular, this means that all values are not always available, since some of them may still be pending. Also, values added as 'alias', are processed last, and are not available. 
+
+The provided argument is an array. The type of its values are the type of values added to the Matrix. For sub-matrices, it may be another array or an object, depending on configuration.
 
 When using a closure or an arrow function, it is possible to access a unique Identifier with the `$this->uniqueId` property. The uniqueId is an int, starting at 1, and incremented each usage. 
 
@@ -209,6 +213,33 @@ $m->addSet('y', [5,6]);
     [y] => 6
 )
 
+```
+
+```php
+
+$m = new Datacombinator\Matrix();
+
+// No argument for this closure, as we don't need it
+$a = $m->addConstant('a', 'A');
+$m->addAlias('b', $a);
+$m->addLambda('x', function ($r) { return $r['a'].($r['b'] ?? 'No B').($r['c'] ?? 'No C')});
+$m->addConstant('c', 'C');
+
+print_r($m->toArray());
+
+Array
+(
+    [0] => Array
+        (
+            [a] => A
+            // No B, because it is an alias
+            // No C, because it is defined later. It may be moved before 'x' to get access to it
+            [x] => ANo BNo C
+            [c] => C
+            [b] => A
+        )
+
+)
 ```
 
 <a name="addPermute"></a>
@@ -467,6 +498,10 @@ Array
 )
 ```
 
+Aliases may be added in any order : it is possible to call an alias created in a sub-matrix from the top-matrix, or vice-versa. 
+
+Aliases are processed as the last elements in a Matrix. They might not be available in a Lambda call, which will always happen before.
+
 <a name="addSequence"></a>
 ### addSequence
 
@@ -616,7 +651,6 @@ Use the toArray() method, and apply the PHP native shuffle() function on it.
 
 Use foreach() with the generate() method, and count the number of element needed. Then, break when all the needed results were yielded.
 
-
 ## TODO
 
 * inject the destination via reference, instead of a name of function
@@ -625,5 +659,8 @@ Use foreach() with the generate() method, and count the number of element needed
 * add supports for setters and factories, __constructor with arguments
 * add supports for partitions of arrays [2] => [[1], [1]], [[2]], 
 * produces data list for documentation
+* No-data operations 
+* Recursive data generation
+* handle conditions on previously generated data
 
 * Cannot add support for references. Use objects instead. 
