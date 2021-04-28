@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
 
 final class MatrixTest extends TestCase
 {
     public function testEmptyMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         
         $this->assertEmpty(
             $matrix->toArray()[0]
@@ -16,7 +17,7 @@ final class MatrixTest extends TestCase
 
     public function testConstantConstantMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('x', 1);
         $matrix->addConstant('b', 2);
         
@@ -28,7 +29,7 @@ final class MatrixTest extends TestCase
 
     public function testConstantConstantArrayMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('x', 1);
         $matrix->addConstant('b', [2, 3]);
         
@@ -40,7 +41,7 @@ final class MatrixTest extends TestCase
 
     public function testConstantConstantConstantMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('x2', 1);
         $matrix->addConstant('b3', 2);
         $matrix->addConstant('b4', 3);
@@ -461,10 +462,9 @@ final class MatrixTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->addSet('a', [1, 1]);
-//        $matrix->addLambda('a',function ($r) { print_r($r); return 1;});
         $matrix->setClass(x7a::class);
 
-        $matrix2 = new Matrix();
+        $matrix2 = new Engine();
         $matrix2->addMatrix('b', $matrix);
         $matrix2->setClass(x7::class);
         

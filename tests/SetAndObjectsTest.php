@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class SetAndObjectsTest extends TestCase
 {
@@ -15,7 +17,7 @@ final class SetAndObjectsTest extends TestCase
             return $r['s'];
         });
 
-        $matrix1 = new Matrix();
+        $matrix1 = new Engine();
         $matrix1->addSet('s', [11,12]);
         $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
         
@@ -40,7 +42,7 @@ final class SetAndObjectsTest extends TestCase
             return $r['s'];
         });
 
-        $matrix1 = new Matrix();
+        $matrix1 = new Engine();
         $matrix1->addSet('s', [11,12]);
         $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
         
@@ -70,7 +72,7 @@ final class SetAndObjectsTest extends TestCase
         $matrix2->setClass(x4::class);
         $matrix2->addConstant('c', 1);
 
-        $matrix1 = new Matrix();
+        $matrix1 = new Engine();
         $matrix1->addMatrix('m', $matrix2);
         $matrix1->addSet('s', [11,12]);
         $matrix1->addLambda('d', function ($r) {

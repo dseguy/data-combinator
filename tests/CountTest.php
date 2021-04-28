@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class CountTest extends TestCase
 {
     public function testCountMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('a', 4);
         $matrix->addSet('c', [1, 2, 3]);
         $matrix->addSet('d', [1, 2, 3]);
@@ -21,7 +23,7 @@ final class CountTest extends TestCase
 
     public function testCountPermuteMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('a', 4);
         $matrix->addPermute('e', [1, 2, 3]);
         
@@ -33,7 +35,7 @@ final class CountTest extends TestCase
 
     public function testCountGeneratorMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addConstant('a', 4);
         $g = function () : \Generator { yield 1;} ;
         $matrix->addSet('e', $g());

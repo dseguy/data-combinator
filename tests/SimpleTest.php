@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class SimpleTest extends TestCase
 {

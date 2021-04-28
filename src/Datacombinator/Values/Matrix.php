@@ -9,18 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Datacombinator;
+namespace Datacombinator\Values;
 
-use Datacombinator\Values\Constant;
-use Datacombinator\Values\Lambda;
-use Datacombinator\Values\Set;
-use Datacombinator\Values\Permute;
-use Datacombinator\Values\Combine;
-use Datacombinator\Values\Factory;
-use Datacombinator\Values\Copy;
-use Datacombinator\Values\Values;
-use Datacombinator\Values\Alias;
-use Datacombinator\Values\Sequence;
+use Datacombinator\Sack;
 
 class Matrix extends Values {
     public const TYPE_ARRAY = 1;
@@ -29,31 +20,35 @@ class Matrix extends Values {
     public const WITH_CACHE = 'cache';
     public const WITHOUT_CACHE = 'nocache';
 
-    private $seeds = array('all' => array(),
-                           'alias' => array(),
-                           );
-    private $flattenedSeeds = false;
+    private $callable = null;
 
     private $previousSeeds = array();
     public Sack $p1;
     private Sack $previous;
 
-    private $class = self::TYPE_ARRAY;
-    private $id = 0;
-    private $cache = null;
-    private $missedProperties = array();
-    private $extraProperties = array();
+    private $flattenedSeeds = false;
+    private array $seeds = array('all' => array(),
+                                 'alias' => array(),
+                                 );
+
     private $inUse = false;
     private $useCache = self::WITH_CACHE;
+    private $cache = null;
 
-    public function __construct() {
+    private $id = 0;
+
+    public function __construct(string $useCache = self::WITHOUT_CACHE) {
+        $this->useCache = $useCache;
+
         $this->p1 = new Sack();
         $this->previous = $this->p1;
     }
 
-    public function addConstant($name, $value) {
+    public function addConstant($name, $value): Values {
         $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Constant($value);
+        $value = new Constant($value);
+
+        $this->seeds['all'][$name] = $value;
 
         return $this->seeds['all'][$name];
     }
@@ -61,19 +56,6 @@ class Matrix extends Values {
     public function addSet($name, iterable $value): Values {
         $name = $this->makeId($name);
         $this->seeds['all'][$name] = new Set($value);
-
-        return $this->seeds['all'][$name];
-    }
-
-    public function addAlias($name, Values $value): Values {
-        $this->seeds['alias'][$name] = new Alias($value);
-
-        return $this->seeds['alias'][$name];
-    }
-
-    public function addCopy($name, object $value): Values {
-        $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Copy($value);
 
         return $this->seeds['all'][$name];
     }
@@ -88,7 +70,26 @@ class Matrix extends Values {
         return $this->seeds['all'][$name];
     }
 
-    public function addMatrix(?string $name, Matrix $matrix, string $useCache = self::WITHOUT_CACHE): Values {
+    public function addPermute($name, array $value): Values {
+        $name = $this->makeId($name);
+        $this->seeds['all'][$name] = new Permute($value);
+        return $this->seeds['all'][$name];
+    }
+
+    public function addCombine($name, array $value): Values {
+        $name = $this->makeId($name);
+        $this->seeds['all'][$name] = new Combine($value);
+        return $this->seeds['all'][$name];
+    }
+
+    public function addCopy($name, object $value): Values {
+        $name = $this->makeId($name);
+        $this->seeds['all'][$name] = new Copy($value);
+
+        return $this->seeds['all'][$name];
+    }
+
+    public function addMatrix(?string $name, Matrix $matrix, string $useCache = Matrix::WITHOUT_CACHE): Values {
         if ($matrix === $this) {
             throw new \Exception('Cannot self-nest matrices');
         }
@@ -106,16 +107,10 @@ class Matrix extends Values {
         return $this->seeds['all'][$name];
     }
 
-    public function addPermute($name, array $value): Values {
-        $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Permute($value);
-        return $this->seeds['all'][$name];
-    }
+    public function addAlias($name, Values $value): Values {
+        $this->seeds['alias'][$name] = new Alias($value);
 
-    public function addCombine($name, array $value): Values {
-        $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Combine($value);
-        return $this->seeds['all'][$name];
+        return $this->seeds['alias'][$name];
     }
 
     public function addSequence($name, int $min = 0, int $max = 10, callable $value = null): Values {
@@ -149,21 +144,6 @@ class Matrix extends Values {
         return $return;
     }
 
-    /*
-    //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
-    public function addObject($name, $class, $matrix): Values {
-        $name = $this->makeId($name);
-        $this->seeds[$name] = new Factory($class, $matrix);
-        return $this->seeds[$name];
-    }
-    */
-
-    public function setClass($class): void {
-        $this->previous->setClass($class);
-        $this->class = $class;
-    }
-
-    // todo : add Sack typehint
     public function generate(Sack $r = null): \Generator {
         yield from $this->generate2($this->previous);
     }
@@ -245,34 +225,6 @@ class Matrix extends Values {
         }
     }
 
-    public function resetCache(): void {
-        $this->cache = null;
-    }
-
-    public function toArray(): array {
-        if ($this->cache !== null) {
-            return $this->cache;
-        }
-
-        $return = array();
-
-        foreach($this->generate() as $array) {
-            $return[] = $array;
-        }
-
-        $this->cache = $return;
-
-        return $return;
-    }
-
-    public function toJson(string $filename = ''): int {
-        if ($filename === '') {
-            throw new \Exception('toJson requires a filename.');
-        }
-
-        return file_put_contents($filename, json_encode($this->toArray()));
-    }
-
     public function count(): int {
         $r = 1;
 
@@ -300,15 +252,12 @@ class Matrix extends Values {
         return $name;
     }
 
-    public function missedProperties(): array {
-        return $this->previous->missedProperties();
+    public function setClass($class): void {
+        $this->previous->setClass($class);
+        $this->class = $class;
     }
 
-    public function extraProperties(): array {
-        return $this->previous->extraProperties();
-    }
-
-    public function setP1(Sack $sack) {
+    public function setP1(Sack $sack): void {
         $this->p1 = $sack;
 
         // recursively set P1 to lower matrices too
@@ -319,8 +268,36 @@ class Matrix extends Values {
         }
     }
 
+    public function resetCache(): void {
+        $this->cache = null;
+    }
+
     public function getSack(): Sack {
         return $this->previous;
+    }
+
+    public function toArray(): array {
+        if ($this->cache !== null) {
+            return $this->cache;
+        }
+
+        $return = array();
+
+        foreach($this->generate() as $array) {
+            $return[] = $array;
+        }
+
+        $this->cache = $return;
+
+        return $return;
+    }
+
+    public function missedProperties(): array {
+        return $this->previous->missedProperties();
+    }
+
+    public function extraProperties(): array {
+        return $this->previous->extraProperties();
     }
 }
 

@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class LambdaTest extends TestCase
 {
 
     public function testSimpleLambdaMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         
         $matrix->addConstant('a', 1);
         $matrix->addLambda('b', function () : int { return 2; });
@@ -22,7 +24,7 @@ final class LambdaTest extends TestCase
 
     public function testLambdaWithPreviousValueMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         
         $matrix->addConstant('a', 3);
         $matrix->addLambda('b', function (array $r) : int { return $r['a'] + 1; });
@@ -36,7 +38,7 @@ final class LambdaTest extends TestCase
 
     public function testLambdaWithTwoPreviousValueMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
 
         $matrix->addConstant('a', 13);
         $matrix->addSet('c', [1, 2, 3]);
@@ -61,13 +63,12 @@ final class LambdaTest extends TestCase
     {
         $m1 = new Matrix();
 
-//        $m1->addConstant('a1', 11);
         $m1->addSet('a1', [11, 12]);
         $m1->addLambda('b1', function (array $r) : string { 
             return $r['c']['a1'] . 'a'; 
         });
 
-        $m2 = new Matrix();
+        $m2 = new Engine();
 
         $m2->addConstant('a2', 12);
         $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
@@ -97,7 +98,7 @@ final class LambdaTest extends TestCase
         $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
         $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2']; });
 
-        $m3 = new Matrix();
+        $m3 = new Engine();
 
         $m3->addConstant('a3', 13);
         $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
@@ -112,7 +113,7 @@ final class LambdaTest extends TestCase
 
     public function testLambdaWrongReturnType(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', static function () : string { return [];});
         
         $caught = 0;
@@ -143,7 +144,7 @@ final class LambdaTest extends TestCase
         $m2->addMatrix(null, $m1, Matrix::WITHOUT_CACHE);
         // type list upon simple usage of null ? too magic
 
-        $m3 = new Matrix();
+        $m3 = new Engine();
         $m3->addConstant('a3', 13);
         $m3->addSet('b3', [14]); // 24
         $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);

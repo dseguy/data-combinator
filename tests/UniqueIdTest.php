@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
 use DataCombinator\Values\Values;
 
 final class UniqueIdTest extends TestCase
@@ -12,7 +13,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueId(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', function () { return $this->uniqueId;});
         
         $results = $matrix->toArray();
@@ -24,7 +25,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdAndSet(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSet('s', ['a', 'b']);
         $matrix->addLambda('c', function () { return $this->uniqueId;});
         
@@ -41,7 +42,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdWithArrowFunction(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', fn () => $this->uniqueId);
         
         $results = $matrix->toArray();
@@ -53,7 +54,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdWithCallback(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', 'callback');
         
         $results = $matrix->toArray();
@@ -65,7 +66,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdWithCallbackArray(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', [x5::class, 'scallback']);
         
         $results = $matrix->toArray();
@@ -77,7 +78,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdWithCallbackArray2(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $x5 = new x5();
         $matrix->addLambda('c', [$x5, 'callback']);
         
@@ -90,7 +91,7 @@ final class UniqueIdTest extends TestCase
 
     public function testUniqueIdWithStaticClosure(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addLambda('c', static function () : int { return 1;});
         
         $results = $matrix->toArray();

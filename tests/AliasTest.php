@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class AliasTest extends TestCase
 {
     public function testSimpleAlias(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
 
         $a = $matrix->addSet('a', [1, 2, 3]);
         $matrix->addAlias('b', $a);
@@ -30,7 +32,7 @@ final class AliasTest extends TestCase
 
     public function testCombine(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
 
         $a = $matrix->addCombine('a', [1, 2]);
         $matrix->addAlias('b', $a);
@@ -56,7 +58,7 @@ final class AliasTest extends TestCase
 
     public function testAliasMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
 
         $a = $matrix->addSet('a', [1, 2]);
         
@@ -78,7 +80,7 @@ final class AliasTest extends TestCase
 
     public function testAliasTwice(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
 
         $a = $matrix->addSet('a', [1, 2, 3]);
         $matrix->addAlias('b', $a);
@@ -115,7 +117,7 @@ final class AliasTest extends TestCase
 
     public function testAliasSecondMatrix(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         
         $m2 = new Matrix();
         $a = $m2->addSet('a', [1, 2]);

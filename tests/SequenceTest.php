@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Matrix;
+use DataCombinator\Engine;
+use DataCombinator\Values\Matrix;
+use DataCombinator\Values\Values;
 
 final class SequenceTest extends TestCase
 {
     public function testSequence2(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i', 0, 10);
 
         $results = $matrix->toArray();
@@ -31,7 +33,7 @@ final class SequenceTest extends TestCase
 
     public function testSequence1(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i', 8);
 
         $results = $matrix->toArray();
@@ -51,7 +53,7 @@ final class SequenceTest extends TestCase
 
     public function testSequence0(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i');
 
         $results = $matrix->toArray();
@@ -75,7 +77,7 @@ final class SequenceTest extends TestCase
 
     public function testSequence1withMax10(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         try {
             $matrix->addSequence('i', 10);
         } catch (\Exception $e) {
@@ -90,7 +92,7 @@ final class SequenceTest extends TestCase
 
     public function testSequence1WithMaxGreaterThanMin(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         try {
             $matrix->addSequence('i', 10, 3);
         } catch (\Exception $e) {
@@ -105,7 +107,7 @@ final class SequenceTest extends TestCase
 
     public function testSequenceWithClosureOdd(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i', 0, 10, function (int $i) : int { return 2 * $i; });
 
         $results = $matrix->toArray();
@@ -129,7 +131,7 @@ final class SequenceTest extends TestCase
 
     public function testSequenceWithClosureSquare(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i', 0, 3, function (int $i) : int { return $i * $i; });
 
         $results = $matrix->toArray();
@@ -153,7 +155,7 @@ final class SequenceTest extends TestCase
 
     public function testSequenceWithClosureChr(): void
     {
-        $matrix = new Matrix();
+        $matrix = new Engine();
         $matrix->addSequence('i', 0, 3, function (int $i) : string { return chr($i + 65); });
 
         $results = $matrix->toArray();
