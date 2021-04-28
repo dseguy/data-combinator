@@ -10,11 +10,13 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 abstract class Values {
     private static $uniqueId = 0;
     protected $lastValue = null;
 
-    abstract public function generate($r): \Generator;
+    abstract public function generate(Sack $r): \Generator;
 
     public function count(): int {
         return 1;

@@ -11,13 +11,15 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Permute extends Values {
     public function __construct(array $list) {
         $this->values = $list;
     }
 
     // [a,b,c] yields [a,b,c], [a, c, b], [b, a, c], [b, c, a], [...]
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         yield from $this->permute($this->values);
 
 

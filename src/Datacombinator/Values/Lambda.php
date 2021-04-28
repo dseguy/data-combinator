@@ -11,6 +11,8 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Lambda extends Values {
     private $callable = null;
 
@@ -18,7 +20,7 @@ class Lambda extends Values {
         $this->callable = $value;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         $closure = $this->callable;
         if ($closure instanceof \Closure)  {
             $callable = @$closure->bindTo($this);

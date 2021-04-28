@@ -166,6 +166,52 @@ final class CacheTest extends TestCase
             211,
         );
     }
+
+    public function testGenerateMatrixLevel3WSwitchedAddMatrixOrder(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addLambda('a1', function ($r) { 
+            return ($r['b33'] ?? $r['b3'] ?? 'Z').' in b'; 
+        });
+
+        $matrix2 = new Matrix();
+        $matrix2->addSet('b2', [111, 211]); //
+        $matrix2->addSet('b3', [113, 213]); //
+
+        $matrix3 = new Matrix();
+        $matrix3->addConstant('X', 1);
+        $matrix3->addSet('b33', [11, 21]);
+        $matrix3->addMatrix('d', $matrix2, Matrix::WITHOUT_CACHE);
+        $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
+
+        $results = $matrix3->toArray();
+        $this->assertEquals(
+            $results[0]['d']['c']['a1'],
+            '11 in b',
+        );
+        $this->assertEquals(
+            $results[1]['d']['c']['a1'],
+            '11 in b',
+        );
+        $this->assertEquals(
+            $results[4]['d']['c']['a1'],
+            '21 in b',
+        );
+        $this->assertEquals(
+            $results[5]['d']['c']['a1'],
+            '21 in b',
+        );
+
+        // [d][b]
+        $this->assertEquals(
+            $results[0]['d']['b2'],
+            111,
+        );
+        $this->assertEquals(
+            $results[2]['d']['b2'],
+            211,
+        );
+    }
     
     // todo : level 4 
 

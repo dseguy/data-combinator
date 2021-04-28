@@ -10,12 +10,14 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Constant extends Values {
     public function __construct($value) {
         $this->values = $value;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         $this->lastValue = $this->values;
         yield $this->values;
     }

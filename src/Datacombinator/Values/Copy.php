@@ -11,12 +11,14 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Copy extends Values {
     public function __construct(object $value) {
         $this->values = $value;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         $clone = clone $this->values;
         $this->lastValue = $clone;
         yield $clone;

@@ -11,12 +11,14 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Set extends Values {
     public function __construct(iterable $value) {
         $this->values = $value;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         foreach($this->values as $value) {
             $this->lastValue = $value;
             yield $value;

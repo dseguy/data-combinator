@@ -10,12 +10,14 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Alias extends Values {
     public function __construct(Values $value) {
         $this->values = $value;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         yield $this->values->lastValue();
     }
 }

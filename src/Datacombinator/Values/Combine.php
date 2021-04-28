@@ -11,6 +11,8 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Combine extends Values {
     public function __construct(array $list) {
         $this->values = $list;
@@ -20,7 +22,7 @@ class Combine extends Values {
     // [a,b] yields [], [a], [b], [a, b ], [a,b,c]
     // [a] yields [], [a]
     // [] yields []
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         yield from $this->combine($this->values);
     }
 

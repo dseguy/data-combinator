@@ -10,15 +10,19 @@
 
 namespace Datacombinator\Values;
 
+use Datacombinator\Sack;
+
 class Sequence extends Values {
-    private $i = 0;
+    private $min = 0;
+    private $max = 10;
+
     public function __construct(int $min, int $max, callable $closure) {
         $this->min = $min;
         $this->max = $max;
         $this->values = $closure;
     }
 
-    public function generate($r): \Generator {
+    public function generate(Sack $r): \Generator {
         yield from $this->generator();
     }
 
