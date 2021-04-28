@@ -456,6 +456,28 @@ final class MatrixTest extends TestCase
             6
         );
     }
+
+    public function testTypedMatrix(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addSet('a', [1, 1]);
+//        $matrix->addLambda('a',function ($r) { print_r($r); return 1;});
+        $matrix->setClass(x7a::class);
+
+        $matrix2 = new Matrix();
+        $matrix2->addMatrix('b', $matrix);
+        $matrix2->setClass(x7::class);
+        
+        $results = $matrix2->toArray();
+        $this->assertEquals(
+            get_class($results[0]->b),
+            x7a::class
+        );
+        $this->assertEquals(
+            get_class($results[0]),
+            x7::class
+        );
+    }
 }
 
 class x2 {
@@ -467,4 +489,12 @@ class x2 {
 class x3 {
     public $x3a;
     public $x3b = 1;
+}
+
+class x7 {
+    public x7a $b;
+}
+
+class x7a {
+    public int $a;
 }

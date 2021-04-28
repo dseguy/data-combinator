@@ -78,7 +78,11 @@ class Sack {
                 foreach(get_class_vars($class) as $name => $value) {
                     // skip undefined values, to use the default value.
                     if (isset($this->values[$name])) {
-                        $yield->$name = $this->values[$name];
+                        if ($this->values[$name] instanceof Sack) {
+                            $yield->$name = $this->values[$name]->toArray();
+                        } else {
+                            $yield->$name = $this->values[$name];
+                        }
                         unset($keys[$name]);
                     } else {
                         $this->missedProperties[] = $name;

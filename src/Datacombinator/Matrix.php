@@ -164,7 +164,7 @@ class Matrix extends Values {
     }
 
     // todo : add Sack typehint
-    public function generate($r = null): \Generator {
+    public function generate(Sack $r = null): \Generator {
         yield from $this->generate2($this->previous);
     }
 
