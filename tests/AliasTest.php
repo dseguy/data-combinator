@@ -137,4 +137,39 @@ final class AliasTest extends TestCase
             2
         );
     }
+
+    public function testAliasSecondMatrixWithLambda(): void
+    {
+        $m3 = new Matrix();
+        $m3->addConstant('m2', 1);
+        $alias = $m3->addLambda('j', function($r) { return $r['a'] + 100;});
+
+        $m2 = new Matrix();
+        $m2->addConstant('m2', 1);
+        $m2->addMatrix('k2', $m3);
+
+        $matrix = new Engine();
+        $matrix->addSet('a', [1, 2]);
+        $matrix->addMatrix('k', $m2);
+        $matrix->addAlias('l', $alias);
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0]['k']['k2']['j'],
+            101
+        );
+        $this->assertEquals(
+            $results[0]['l'],
+            101
+        );
+
+        $this->assertEquals(
+            $results[1]['k']['k2']['j'],
+            102
+        );
+        $this->assertEquals(
+            $results[1]['l'],
+            102
+        );
+    }
 }

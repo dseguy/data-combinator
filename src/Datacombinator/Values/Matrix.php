@@ -12,6 +12,7 @@
 namespace Datacombinator\Values;
 
 use Datacombinator\Sack;
+use Datacombinator\Seeds;
 
 class Matrix extends Values {
     public const TYPE_ARRAY = 1;
@@ -31,9 +32,7 @@ class Matrix extends Values {
     private Sack $previous;
 
     private $flattenedSeeds = false;
-    private array $seeds = array('all' => array(),
-                                 'alias' => array(),
-                                 );
+    private $seeds = null;
 
     private $inUse = false;
     private $useCache = self::WITH_CACHE;
@@ -47,6 +46,8 @@ class Matrix extends Values {
         $this->useCache = $useCache;
         $this->writeMode = $writeMode;
 
+        $this->seeds = new Seeds();
+
         $this->p1 = new Sack();
         $this->previous = $this->p1;
     }
@@ -55,16 +56,16 @@ class Matrix extends Values {
         $name = $this->makeId($name);
         $value = new Constant($value);
 
-        $this->seeds['all'][$name] = $value;
-
-        return $this->seeds['all'][$name];
+        $this->seeds->add($name, $value, Seeds::ONCE);
+        return $this->seeds->get($name);
     }
 
     public function addSet($name, iterable $value): Values {
         $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Set($value);
+        $value = new Set($value);
 
-        return $this->seeds['all'][$name];
+        $this->seeds->add($name, $value, Seeds::SET);
+        return $this->seeds->get($name);
     }
 
     public function addLambda($name, callable $value): Values {
@@ -72,28 +73,34 @@ class Matrix extends Values {
         if (!is_callable($value)) {
             throw new \TypeError('Value is not callable');
         }
+        $value = new Lambda($value);
 
-        $this->seeds['all'][$name] = new Lambda($value);
-        return $this->seeds['all'][$name];
+        $this->seeds->add($name, $value, Seeds::LAMBDA);
+        return $this->seeds->get($name);
     }
 
     public function addPermute($name, array $value): Values {
         $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Permute($value);
-        return $this->seeds['all'][$name];
+        $value = new Permute($value);
+
+        $this->seeds->add($name, $value, Seeds::SET);
+        return $this->seeds->get($name);
     }
 
     public function addCombine($name, array $value): Values {
         $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Combine($value);
-        return $this->seeds['all'][$name];
+        $value = new Combine($value);
+
+        $this->seeds->add($name, $value, Seeds::SET);
+        return $this->seeds->get($name);
     }
 
     public function addCopy($name, object $value): Values {
         $name = $this->makeId($name);
-        $this->seeds['all'][$name] = new Copy($value);
+        $value = new Copy($value);
 
-        return $this->seeds['all'][$name];
+        $this->seeds->add($name, $value, Seeds::ONCE);
+        return $this->seeds->get($name);
     }
 
     public function addMatrix(?string $name, Matrix $matrix, string $useCache = Matrix::WITHOUT_CACHE): Values {
@@ -106,18 +113,18 @@ class Matrix extends Values {
         }
         $matrix->inUse = true;
         $matrix->useCache = $useCache;
-
-        $name = $this->makeId($name);
-        $this->seeds['all'][$name] = $matrix;
         $matrix->setP1($this->p1);
 
-        return $this->seeds['all'][$name];
+        $name = $this->makeId($name);
+        $this->seeds->add($name, $matrix, Seeds::SET);
+        return $this->seeds->get($name);
     }
 
     public function addAlias($name, Values $value): Values {
-        $this->seeds['alias'][$name] = new Alias($value);
+        $value = new Alias($value);
 
-        return $this->seeds['alias'][$name];
+        $this->seeds->add($name, $value, Seeds::ALIAS);
+        return $this->seeds->get($name);
     }
 
     public function addSequence($name, int $min = 0, int $max = 10, callable $value = null): Values {
@@ -130,8 +137,10 @@ class Matrix extends Values {
             throw new \Exception("min should be more than max $min $max");
         }
 
-        $this->seeds['all'][$name] = new Sequence($min, $max, $value);
-        return $this->seeds['all'][$name];
+        $value = new Sequence($min, $max, $value);
+
+        $this->seeds->add($name, $value, Seeds::SET);
+        return $this->seeds->get($name);
     }
 
     public function addSimple(array $values): array {
@@ -165,7 +174,7 @@ class Matrix extends Values {
         $cache = array();
 
         if (!$this->flattenedSeeds) {
-            $this->seeds = array_merge(...array_values($this->seeds));
+            $this->seeds = $this->seeds->getAll();
             $this->flattenedSeeds = true;
         }
 
@@ -238,7 +247,7 @@ class Matrix extends Values {
         if ($this->flattenedSeeds) {
             $seeds = $this->seeds;
         } else {
-            $seeds = array_merge(...array_values($this->seeds));
+            $seeds = $this->seeds->getAll();
         }
 
         foreach($seeds as $seed) {
@@ -258,19 +267,13 @@ class Matrix extends Values {
 
         switch($this->writeMode) {
             case self::SKIP :
-                if (isset($this->seeds['all'][$name])) {
-                    $name = '';
-                }
-                if (isset($this->seeds['alias'][$name])) {
+                if ($this->seeds->isset($name)) {
                     $name = '';
                 }
                 break;
 
             case self::WARN :
-                if (isset($this->seeds['all'][$name])) {
-                    throw new \Exception($name . ' index is already in use.');
-                }
-                if (isset($this->seeds['alias'][$name])) {
+                if ($this->seeds->isset($name)) {
                     throw new \Exception($name . ' index is already in use.');
                 }
                 break;
@@ -296,10 +299,8 @@ class Matrix extends Values {
         $this->p1 = $sack;
 
         // recursively set P1 to lower matrices too
-        foreach($this->seeds['all'] as $seed) {
-            if ($seed instanceof self) {
-                $seed->setP1($sack);
-            }
+        foreach($this->seeds->getMatrices() as $seed) {
+            $seed->setP1($sack);
         }
     }
 

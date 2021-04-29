@@ -90,7 +90,7 @@ final class LambdaTest extends TestCase
         $m1 = new Matrix();
 
         $m1->addConstant('a1', 11);
-        $m1->addLambda('b', function (array $r) : string { return $r['c']['a2'] . 'a'; });
+        $m1->addLambda('b', function (array $r) : string {return $r['c']['a2'] . 'a'; });
 
         $m2 = new Matrix();
 
@@ -215,6 +215,53 @@ final class LambdaTest extends TestCase
                  ) 
         );
     }
+
+    public function testSimpleLambdaBeforeSet(): void
+    {
+        $matrix = new Engine();
+        
+        $j = 10;
+        $matrix->addLambda('b', function () use (&$j) : int { return ++$j; });
+        $matrix->addSet('a', [1,2,3]);
+
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0],
+            ['a' => 1, 'b' => 11]
+        );
+        $this->assertEquals(
+            $result[1],
+            ['a' => 2, 'b' => 12]
+        );
+        $this->assertEquals(
+            $result[2],
+            ['a' => 3, 'b' => 13]
+        );
+    }
+
+    public function testSimpleLambdaAfterSet(): void
+    {
+        $matrix = new Engine();
+        
+        $j = 10;
+        $matrix->addSet('a', [1,2,3]);
+        $matrix->addLambda('b', function () use (&$j) : int { return ++$j; });
+
+        $result = $matrix->toArray();
+        $this->assertEquals(
+            $result[0],
+            ['a' => 1, 'b' => 11]
+        );
+        $this->assertEquals(
+            $result[1],
+            ['a' => 2, 'b' => 12]
+        );
+        $this->assertEquals(
+            $result[2],
+            ['a' => 3, 'b' => 13]
+        );
+    }
+
 }
 
 class x6 {
