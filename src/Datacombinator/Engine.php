@@ -11,8 +11,6 @@
 
 namespace Datacombinator;
 
-use Datacombinator\Values\Factory;
-use Datacombinator\Values\Copy;
 use Datacombinator\Values\Values;
 use Datacombinator\Values\Matrix;
 
@@ -21,8 +19,8 @@ class Engine {
 
     private $class = Matrix::TYPE_ARRAY;
 
-    public function __construct() {
-        $this->root = new Matrix(Matrix::WITH_CACHE);
+    public function __construct(int $writeMode = Matrix::OVERWRITE) {
+        $this->root = new Matrix(Matrix::WITH_CACHE, $writeMode);
     }
 
     public function addConstant($name, $value): Values {
@@ -45,8 +43,8 @@ class Engine {
         return $this->root->addLambda($name, $value);
     }
 
-    public function addMatrix(?string $name, Matrix $matrix, string $useCache = Matrix::WITHOUT_CACHE): Values {
-        return $this->root->addMatrix($name, $matrix, $useCache);
+    public function addMatrix(?string $name, Matrix $matrix, string $useCache = Matrix::WITHOUT_CACHE, int $writeMode = Matrix::OVERWRITE): Values {
+        return $this->root->addMatrix($name, $matrix, $useCache, $writeMode);
     }
 
     public function addPermute($name, array $value): Values {
@@ -64,15 +62,6 @@ class Engine {
     public function addSimple(array $values): array {
         return $this->root->addSimple($values);
     }
-
-    /*
-    //$m->addObject("Nom", 'new' / factory / setter?, Matrix(), clone/copy);
-    public function addObject($name, $class, $matrix): Values {
-        $name = $this->makeId($name);
-        $this->seeds[$name] = new Factory($class, $matrix);
-        return $this->seeds[$name];
-    }
-    */
 
     public function generate(): \Generator {
         yield from $this->root->generate();

@@ -20,6 +20,10 @@ class Matrix extends Values {
     public const WITH_CACHE = 'cache';
     public const WITHOUT_CACHE = 'nocache';
 
+    public const OVERWRITE = 1;
+    public const SKIP = 2;
+    public const WARN = 3;
+
     private $callable = null;
 
     private $previousSeeds = array();
@@ -35,10 +39,13 @@ class Matrix extends Values {
     private $useCache = self::WITH_CACHE;
     private $cache = null;
 
-    private $id = 0;
+    private int $id = 0;
 
-    public function __construct(string $useCache = self::WITHOUT_CACHE) {
+    private int $writeMode = self::OVERWRITE;
+
+    public function __construct(string $useCache = self::WITHOUT_CACHE, int $writeMode = self::OVERWRITE) {
         $this->useCache = $useCache;
+        $this->writeMode = $writeMode;
 
         $this->p1 = new Sack();
         $this->previous = $this->p1;
@@ -247,6 +254,34 @@ class Matrix extends Values {
     public function makeId(?string $name): string {
         if ($name === null) {
             return (string) $this->id++;
+        }
+
+        switch($this->writeMode) {
+            case self::SKIP :
+                if (isset($this->seeds['all'][$name])) {
+                    $name = '';
+                }
+                if (isset($this->seeds['alias'][$name])) {
+                    $name = '';
+                }
+                break;
+
+            case self::WARN :
+                if (isset($this->seeds['all'][$name])) {
+                    throw new \Exception($name . ' index is already in use.');
+                }
+                if (isset($this->seeds['alias'][$name])) {
+                    throw new \Exception($name . ' index is already in use.');
+                }
+                break;
+
+            case self::OVERWRITE :
+                // Do nothing
+                break;
+
+            default:
+                throw \Exception('Unknown write mode ' . $this->writeMode . ' in Matrix.');
+                break;
         }
 
         return $name;

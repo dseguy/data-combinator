@@ -419,7 +419,7 @@ $generated = $m->toArray();
 <a name="addMatrix"></a>
 ### addMatrix
 
-Adding a Matrix to another is the way to nest matrices. It allows the creation of objects through the combining process.
+Adding a Matrix to another is the way to nest matrices. It also allows the creation of objects through the combining process.
 
 ```php
 
@@ -467,6 +467,15 @@ Array
 
 )
 ```
+
+Matrices have 2 options : 
+* Cache, which caches the values once they are generated. 
+  * Matrix::WITHOUT_CACHE re-generate the Matrix each time, 
+  * Matrix::WITH_CACHE generates the cache once, and keep reusing it later.
+* Write mode, which configures the behavior in case of multiple definitions 
+  * Matrix::OVERWRITE is the default. The value is replaced with the new definition.
+  * Matrix::SKIP skips any previously defined value
+  * Matrix::WARN throws an exception when a previously defined name is reused.
 
 <a name="addAlias"></a>
 ### addAlias
@@ -650,17 +659,3 @@ Use the toArray() method, and apply the PHP native shuffle() function on it.
 ### How to limit the results? 
 
 Use foreach() with the generate() method, and count the number of element needed. Then, break when all the needed results were yielded.
-
-## TODO
-
-* inject the destination via reference, instead of a name of function
-* help static analysis by making easy to recognize the use properties and methods in the created objects
-* create variables instead of arrays/objects
-* add supports for setters and factories, __constructor with arguments
-* add supports for partitions of arrays [2] => [[1], [1]], [[2]], 
-* produces data list for documentation
-* No-data operations 
-* Recursive data generation
-* handle conditions on previously generated data
-
-* Cannot add support for references. Use objects instead. 
