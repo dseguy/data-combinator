@@ -48,7 +48,7 @@ class Matrix extends Values {
 
         $this->seeds = new Seeds();
 
-        $this->p1 = new Sack();
+        $this->p1 = new Sack($this->seeds);
         $this->previous = $this->p1;
     }
 
@@ -174,7 +174,7 @@ class Matrix extends Values {
         $cache = array();
 
         if (!$this->flattenedSeeds) {
-            $this->seeds = $this->seeds->getAll();
+            $this->seeds = $this->seeds->getAll(Seeds::EXECUTION_ORDER);
             $this->flattenedSeeds = true;
         }
 

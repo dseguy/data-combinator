@@ -21,12 +21,16 @@ class Seeds {
     public const SET    = 'set';
     public const ALL    = 'all';
 
+    public const EXECUTION_ORDER = 1;
+    public const ADDING_ORDER = 2;
+
     // the order here is important
     private $seeds = array('once'   => array(),
                            'set'    => array(),
                            'lambda' => array(),
                            'alias'  => array(),
                            );
+    private $order = array();
 
     public function add(string $name, Values $value, $type = self::ONCE) {
         if (!isset($this->seeds[$type])) {
@@ -34,10 +38,15 @@ class Seeds {
         }
 
         $this->seeds[$type][$name] = $value;
+        $this->order[$name] = $value;
     }
 
-    public function getAll(): array {
-        return array_merge(...array_values($this->seeds));
+    public function getAll(int $type = self::EXECUTION_ORDER): array {
+        if ($type === self::EXECUTION_ORDER) {
+            return array_merge(...array_values($this->seeds));
+        } else {
+            return $this->order;
+        }
     }
 
     public function getMatrices(): array {

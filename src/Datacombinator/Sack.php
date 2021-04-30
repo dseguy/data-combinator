@@ -20,11 +20,10 @@ class Sack {
     private $missedProperties = array();
     private $extraProperties = array();
 
-    private static $i = 0;
-    public $I = 0;
+    private Seeds $seeds;
 
-    public function __construct() {
-        $this->I = ++self::$i;
+    public function __construct(Seeds $seeds) {
+        $this->seeds = $seeds;
     }
 
     public function __get($name) {
@@ -36,63 +35,65 @@ class Sack {
     }
 
     public function toArray() {
-            if ($this->class === self::TYPE_ARRAY) {
-                $return = array();
-                foreach($this->values as $name => $value) {
-                    if ($value instanceof self) {
-                        $return[$name] = $value->toArray();
-                    } else {
-                        $return[$name] = $value;
-                    }
-                }
-                return $return;
+        if ($this->class === self::TYPE_ARRAY) {
+            $return = array();
+            foreach(array_keys($this->seeds->getAll(Seeds::ADDING_ORDER)) as $name) {
+                $value = $this->values[$name] ?? null;
 
-            } elseif ($this->class === self::TYPE_LIST) {
-                $return = array();
-                foreach(array_values($this->values) as $name => $value) {
-                    if ($value instanceof self) {
-                        $return[$name] = $value->toArray();
-                    } else {
-                        $return[$name] = $value;
-                    }
+                if ($value instanceof self) {
+                    $return[$name] = $value->toArray();
+                } else {
+                    $return[$name] = $value;
                 }
-                return $return;
-            } elseif ($this->class === strtolower(\Stdclass::class)) {
-                $return = array();
-                foreach($this->values as $name => $value) {
-                    if ($value instanceof self) {
-                        $return[$name] = $value->toArray();
-                    } else {
-                        $return[$name] = $value;
-                    }
-                }
-                return (object) $return;
-            } else {
-                $class = $this->class;
-                $yield = new $class();
-
-                // only use accessible values
-                // Test properties at add* time
-                $this->missedProperties = array();
-                $keys = $this->values;
-                foreach(get_class_vars($class) as $name => $value) {
-                    // skip undefined values, to use the default value.
-                    if (isset($this->values[$name])) {
-                        if ($this->values[$name] instanceof Sack) {
-                            $yield->$name = $this->values[$name]->toArray();
-                        } else {
-                            $yield->$name = $this->values[$name];
-                        }
-                        unset($keys[$name]);
-                    } else {
-                        $this->missedProperties[] = $name;
-                    }
-                }
-
-                $this->extraProperties = array_keys($keys);
-
-                return $yield;
             }
+            return $return;
+
+        } elseif ($this->class === self::TYPE_LIST) {
+            $return = array();
+            foreach(array_values($this->values) as $name => $value) {
+                if ($value instanceof self) {
+                    $return[$name] = $value->toArray();
+                } else {
+                    $return[$name] = $value;
+                }
+            }
+            return $return;
+        } elseif ($this->class === strtolower(\Stdclass::class)) {
+            $return = array();
+            foreach($this->values as $name => $value) {
+                if ($value instanceof self) {
+                    $return[$name] = $value->toArray();
+                } else {
+                    $return[$name] = $value;
+                }
+            }
+            return (object) $return;
+        } else {
+            $class = $this->class;
+            $yield = new $class();
+
+            // only use accessible values
+            // Test properties at add* time
+            $this->missedProperties = array();
+            $keys = $this->values;
+            foreach(get_class_vars($class) as $name => $value) {
+                // skip undefined values, to use the default value.
+                if (isset($this->values[$name])) {
+                    if ($this->values[$name] instanceof Sack) {
+                        $yield->$name = $this->values[$name]->toArray();
+                    } else {
+                        $yield->$name = $this->values[$name];
+                    }
+                    unset($keys[$name]);
+                } else {
+                    $this->missedProperties[] = $name;
+                }
+            }
+
+            $this->extraProperties = array_keys($keys);
+
+            return $yield;
+        }
     }
 
     public function setClass($class): void {
