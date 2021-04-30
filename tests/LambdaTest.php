@@ -262,6 +262,50 @@ final class LambdaTest extends TestCase
         );
     }
 
+    public function testConstantLambda(): void
+    {
+        $matrix = new Engine();
+        
+        $matrix->addLambda('b', function () : int { return rand(0, 10); }, Matrix::CONSTANT);
+        $matrix->addSet('a', [5, 6]);
+
+        $result = $matrix->toArray();
+
+        $this->assertEquals(
+            $result[0]['b'],
+            $result[1]['b'],
+        );
+    }
+
+    public function testDynamicLambda(): void
+    {
+        $matrix = new Engine();
+        
+        $matrix->addLambda('b', function ($r) : int { return $r['a'] + 1000; }, Matrix::DYNAMIC);
+        $matrix->addSet('a', [5, 6]);
+
+        $results = $matrix->toArray();
+
+        $this->assertNotEquals(
+            $results[0]['b'],
+            $results[1]['b'],
+        );
+    }
+
+    public function testDefaultLambda(): void
+    {
+        $matrix = new Engine();
+        
+        $matrix->addLambda('b', function ($r) : int { return $r['a'] + 1000; });
+        $matrix->addSet('a', [5, 6]);
+
+        $results = $matrix->toArray();
+
+        $this->assertNotEquals(
+            $results[0]['b'],
+            $results[1]['b'],
+        );
+    }
 }
 
 class x6 {

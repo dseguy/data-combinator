@@ -21,6 +21,9 @@ class Matrix extends Values {
     public const WITH_CACHE = 'cache';
     public const WITHOUT_CACHE = 'nocache';
 
+    public const CONSTANT = 1;
+    public const DYNAMIC = 2;
+
     public const OVERWRITE = 1;
     public const SKIP = 2;
     public const WARN = 3;
@@ -68,14 +71,15 @@ class Matrix extends Values {
         return $this->seeds->get($name);
     }
 
-    public function addLambda($name, callable $value): Values {
+    public function addLambda($name, callable $value, int $option = self::DYNAMIC): Values {
         $name = $this->makeId($name);
         if (!is_callable($value)) {
             throw new \TypeError('Value is not callable');
         }
         $value = new Lambda($value);
 
-        $this->seeds->add($name, $value, Seeds::LAMBDA);
+        $options = $option === self::CONSTANT ? Seeds::ONCE : Seeds::LAMBDA;
+        $this->seeds->add($name, $value, $options);
         return $this->seeds->get($name);
     }
 
@@ -283,7 +287,7 @@ class Matrix extends Values {
                 break;
 
             default:
-                throw \Exception('Unknown write mode ' . $this->writeMode . ' in Matrix.');
+                throw new \Exception('Unknown write mode ' . $this->writeMode . ' in Matrix.');
                 break;
         }
 

@@ -175,6 +175,8 @@ Array
 
 This method adds a closure, a callback or an arrow function as a value. The closure will be called for each item to generate a new value. 
 
+The lambda may be constant or dynamic. The first one is calculated once, then always the same (for example, today's date). The second one is calculated each time, and may yield different value (for example, rand() value, or lambda that is dependent on previously generated values).
+
 The closure receives an (array) argument with all the previously created values. That way, it may create a new value, based on previously generated values. That array is filled in the order of addition to the Matrix : in particular, this means that all values are not always available, since some of them may still be pending. Also, values added as 'alias', are processed last, and are not available. 
 
 The provided argument is an array. The type of its values are the type of values added to the Matrix. For sub-matrices, it may be another array or an object, depending on configuration.
