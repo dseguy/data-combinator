@@ -39,8 +39,12 @@ class Engine {
         return $this->root->addCopy($name, $value);
     }
 
-    public function addLambda($name, callable $value, int $option = Matrix::DYNAMIC): Values {
-        return $this->root->addLambda($name, $value, $option);
+    public function addLambda($name, callable $value): Values {
+        return $this->root->addLambda($name, $value);
+    }
+
+    public function addClosure($name, callable $value): Values {
+        return $this->root->addClosure($name, $value);
     }
 
     public function addMatrix(?string $name, Matrix $matrix, string $useCache = Matrix::WITHOUT_CACHE, int $writeMode = Matrix::OVERWRITE): Values {

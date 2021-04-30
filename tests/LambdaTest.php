@@ -27,7 +27,7 @@ final class LambdaTest extends TestCase
         $matrix = new Engine();
         
         $matrix->addConstant('a', 3);
-        $matrix->addLambda('b', function (array $r) : int { return $r['a'] + 1; });
+        $matrix->addClosure('b', function (array $r) : int { return $r['a'] + 1; });
 
         $result = $matrix->toArray();
         $this->assertEquals(
@@ -42,7 +42,7 @@ final class LambdaTest extends TestCase
 
         $matrix->addConstant('a', 13);
         $matrix->addSet('c', [1, 2, 3]);
-        $matrix->addLambda('b', function (array $r) : int { return $r['a'] + $r['c'] + 1; });
+        $matrix->addClosure('b', function (array $r) : int { return $r['a'] + $r['c'] + 1; });
 
         $result = $matrix->toArray();
         $this->assertEquals(
@@ -64,7 +64,7 @@ final class LambdaTest extends TestCase
         $m1 = new Matrix();
 
         $m1->addSet('a1', [11, 12]);
-        $m1->addLambda('b1', function (array $r) : string { 
+        $m1->addClosure('b1', function (array $r) : string { 
             return $r['c']['a1'] . 'a'; 
         });
 
@@ -72,7 +72,7 @@ final class LambdaTest extends TestCase
 
         $m2->addConstant('a2', 12);
         $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
-        $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a2'].$r['c']['a1']; });
+        $m2->addClosure('b2', function (array $r) : string { return 'b'.$r['a2'].$r['c']['a1']; });
 
         $result = $m2->toArray();
         $this->assertEquals(
@@ -90,19 +90,19 @@ final class LambdaTest extends TestCase
         $m1 = new Matrix();
 
         $m1->addConstant('a1', 11);
-        $m1->addLambda('b', function (array $r) : string {return $r['c']['a2'] . 'a'; });
+        $m1->addClosure('b', function (array $r) : string {return $r['c']['a2'] . 'a'; });
 
         $m2 = new Matrix();
 
         $m2->addConstant('a2', 12);
         $m2->addMatrix('c', $m1, Matrix::WITHOUT_CACHE);
-        $m2->addLambda('b2', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2']; });
+        $m2->addClosure('b2', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2']; });
 
         $m3 = new Engine();
 
         $m3->addConstant('a3', 13);
         $m3->addMatrix('c', $m2, Matrix::WITHOUT_CACHE);
-        $m3->addLambda('b3', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2'].$r['c']['c']['a1']; });
+        $m3->addClosure('b3', function (array $r) : string { return 'b'.$r['a3'].$r['c']['a2'].$r['c']['c']['a1']; });
 
         $result = $m3->toArray();
         $this->assertEquals(
@@ -135,7 +135,7 @@ final class LambdaTest extends TestCase
 
         $m1->addSet('a1', [11]); // , 12, 13
         $m1->addConstant('a2', 142);
-        $m1->addLambda('b1', function ($r) : string { 
+        $m1->addClosure('b1', function ($r) : string { 
             return $r['c'][0]->a1 . 'a'; 
         });
         $m1->setClass(x6::class);
@@ -170,7 +170,7 @@ final class LambdaTest extends TestCase
 
         $m1->addSet('a1', [11, 12]); // , 13
         $m1->addConstant('a2', 142);
-        $m1->addLambda('b1', function ($r) : string { 
+        $m1->addClosure('b1', function ($r) : string { 
             return $r['c'][0]->a1 . 'a'; 
         });
         $m1->setClass(x6::class);
@@ -262,26 +262,11 @@ final class LambdaTest extends TestCase
         );
     }
 
-    public function testConstantLambda(): void
-    {
-        $matrix = new Engine();
-        
-        $matrix->addLambda('b', function () : int { return rand(0, 10); }, Matrix::CONSTANT);
-        $matrix->addSet('a', [5, 6]);
-
-        $result = $matrix->toArray();
-
-        $this->assertEquals(
-            $result[0]['b'],
-            $result[1]['b'],
-        );
-    }
-
     public function testDynamicLambda(): void
     {
         $matrix = new Engine();
         
-        $matrix->addLambda('b', function ($r) : int { return $r['a'] + 1000; }, Matrix::DYNAMIC);
+        $matrix->addClosure('b', function ($r) : int { return $r['a'] + 1000; });
         $matrix->addSet('a', [5, 6]);
 
         $results = $matrix->toArray();
@@ -292,20 +277,6 @@ final class LambdaTest extends TestCase
         );
     }
 
-    public function testDefaultLambda(): void
-    {
-        $matrix = new Engine();
-        
-        $matrix->addLambda('b', function ($r) : int { return $r['a'] + 1000; });
-        $matrix->addSet('a', [5, 6]);
-
-        $results = $matrix->toArray();
-
-        $this->assertNotEquals(
-            $results[0]['b'],
-            $results[1]['b'],
-        );
-    }
 }
 
 class x6 {

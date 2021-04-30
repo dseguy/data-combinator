@@ -71,15 +71,25 @@ class Matrix extends Values {
         return $this->seeds->get($name);
     }
 
-    public function addLambda($name, callable $value, int $option = self::DYNAMIC): Values {
+    public function addLambda($name, callable $value): Values {
         $name = $this->makeId($name);
         if (!is_callable($value)) {
             throw new \TypeError('Value is not callable');
         }
         $value = new Lambda($value);
 
-        $options = $option === self::CONSTANT ? Seeds::ONCE : Seeds::LAMBDA;
-        $this->seeds->add($name, $value, $options);
+        $this->seeds->add($name, $value, Seeds::LAMBDA);
+        return $this->seeds->get($name);
+    }
+
+    public function addClosure($name, callable $value): Values {
+        $name = $this->makeId($name);
+        if (!is_callable($value)) {
+            throw new \TypeError('Value is not callable');
+        }
+        $value = new Closure($value);
+
+        $this->seeds->add($name, $value, Seeds::CLOSURE);
         return $this->seeds->get($name);
     }
 
@@ -120,7 +130,7 @@ class Matrix extends Values {
         $matrix->setP1($this->p1);
 
         $name = $this->makeId($name);
-        $this->seeds->add($name, $matrix, Seeds::SET);
+        $this->seeds->add($name, $matrix, Seeds::MATRIX);
         return $this->seeds->get($name);
     }
 

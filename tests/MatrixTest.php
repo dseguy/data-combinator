@@ -281,7 +281,7 @@ final class MatrixTest extends TestCase
         $matrix = new Matrix();
         
         $matrix->addConstant('a', 10);
-        $matrix->addLambda('b', function ($r) : int { return 2 + $r['a']; });
+        $matrix->addClosure('b', function ($r) : int { return 2 + $r['a']; });
 
         $result = $matrix->toArray();
         $this->assertEquals(

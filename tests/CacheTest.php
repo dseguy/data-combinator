@@ -81,7 +81,7 @@ final class CacheTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->addSet('b1', [1]); //, 2, 3
-        $matrix->addLambda('a', function ($r) { return ($r['b'] ?? 'Z').' in b'; });
+        $matrix->addClosure('a', function ($r) { return ($r['b'] ?? 'Z').' in b'; });
 
         $matrix2 = new Engine();
         $matrix2->addSet('b', [21, 22, 23]);
@@ -105,7 +105,7 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel2WithoutCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+        $matrix->addClosure('a', function ($r) { return $r['b'].' in b'; });
 
         $matrix2 = new Engine();
         $matrix2->addSet('b', [1, 2]);
@@ -126,7 +126,7 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel3WithoutCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addLambda('a1', function ($r) { 
+        $matrix->addClosure('a1', function ($r) { 
             return ($r['b33'] ?? $r['b3'] ?? 'Z').' in b'; 
         });
 
@@ -172,7 +172,7 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel3WSwitchedAddMatrixOrder(): void
     {
         $matrix = new Matrix();
-        $matrix->addLambda('a1', function ($r) { 
+        $matrix->addClosure('a1', function ($r) { 
             return ($r['b33'] ?? $r['b3'] ?? 'Z').' in b'; 
         });
 
@@ -220,7 +220,7 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel3WithCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addLambda('a', function ($r) { return $r['b'].' in b'; });
+        $matrix->addClosure('a', function ($r) { return $r['b'].' in b'; });
 
         $matrix2 = new Matrix();
         $matrix2->addSet('b', [1, 2]);

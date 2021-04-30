@@ -142,7 +142,7 @@ final class AliasTest extends TestCase
     {
         $m3 = new Matrix();
         $m3->addConstant('m2', 1);
-        $alias = $m3->addLambda('j', function($r) { return $r['a'] + 100;});
+        $alias = $m3->addClosure('j', function($r) { return $r['a'] + 100;});
 
         $m2 = new Matrix();
         $m2->addConstant('m2', 1);

@@ -13,7 +13,7 @@ final class SetAndObjectsTest extends TestCase
         $matrix2 = new Matrix();
         $matrix2->setClass(x4::class);
         $matrix2->addConstant('c', 1);
-        $matrix2->addLambda('c2', function ($r) {
+        $matrix2->addClosure('c2', function ($r) {
             return $r['s'];
         });
 
@@ -38,7 +38,7 @@ final class SetAndObjectsTest extends TestCase
         $matrix2->setClass(x4::class);
         $matrix2->addSet('c', [1,3]);
         // Cannot use object of type x2 as array
-        $matrix2->addLambda('c2', function ($r) {
+        $matrix2->addClosure('c2', function ($r) {
             return $r['s'];
         });
 
@@ -75,7 +75,7 @@ final class SetAndObjectsTest extends TestCase
         $matrix1 = new Engine();
         $matrix1->addMatrix('m', $matrix2);
         $matrix1->addSet('s', [11,12]);
-        $matrix1->addLambda('d', function ($r) {
+        $matrix1->addClosure('d', function ($r) {
             return $r['m']->c + 10;
         });
         

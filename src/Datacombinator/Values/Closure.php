@@ -13,7 +13,7 @@ namespace Datacombinator\Values;
 
 use Datacombinator\Sack;
 
-class Lambda extends Values {
+class Closure extends Values {
     private $callable = null;
 
     public function __construct(callable $value) {
@@ -33,8 +33,7 @@ class Lambda extends Values {
             $callable = $closure;
         }
 
-        // Closure do send the previous values, but not Lambda
-        $this->lastValue = $callable();
+        $this->lastValue = $callable($r->toArray());
         yield $this->lastValue;
     }
 }

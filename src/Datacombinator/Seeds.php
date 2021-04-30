@@ -12,23 +12,25 @@
 namespace Datacombinator;
 
 use Datacombinator\Values\Values;
-use Datacombinator\Values\Matrix;
 
 class Seeds {
-    public const ONCE   = 'once';
-    public const ALIAS  = 'alias';
-    public const LAMBDA = 'lambda';
-    public const SET    = 'set';
-    public const ALL    = 'all';
+    public const ONCE    = 'once';
+    public const ALIAS   = 'alias';
+    public const LAMBDA  = 'lambda';
+    public const MATRIX  = 'matrix';
+    public const CLOSURE = 'closure';
+    public const SET     = 'set';
 
     public const EXECUTION_ORDER = 1;
     public const ADDING_ORDER = 2;
 
     // the order here is important
-    private $seeds = array('once'   => array(),
-                           'set'    => array(),
-                           'lambda' => array(),
-                           'alias'  => array(),
+    private $seeds = array(self::ONCE    => array(),
+                           self::SET     => array(),
+                           self::LAMBDA  => array(),
+                           self::MATRIX  => array(),
+                           self::CLOSURE => array(),
+                           self::ALIAS   => array(),
                            );
     private $order = array();
 
@@ -50,30 +52,33 @@ class Seeds {
     }
 
     public function getMatrices(): array {
-        $return = array();
-        foreach($this->seeds['set'] as $m) {
-            if ($m instanceof Matrix) {
-                $return[] = $m;
-            }
-        }
-
-        return $return;
+        return $this->seeds[self::MATRIX];
     }
 
     public function isset(string $name): bool {
-        $return = $this->seeds['once'][$name] ?? $this->seeds['set'][$name] ?? $this->seeds['alias'][$name] ?? $this->seeds['lambda'][$name] ?? 'None';
+        $return = $this->findValue($name);
 
         return !is_string($return);
     }
 
-    public function get(string $name) {
-        $return = $this->seeds['once'][$name] ?? $this->seeds['set'][$name] ?? $this->seeds['alias'][$name] ?? $this->seeds['lambda'][$name] ?? 'None';
+    public function get(string $name): Values {
+        $return = $this->findValue($name);
 
         if (is_string($return)) {
             throw new \Exception("No such element as $name");
         }
 
         return $return;
+    }
+
+    private function findValue($name) {
+        return $this->seeds[self::ONCE][$name]   ??
+               $this->seeds[self::SET][$name]    ??
+               $this->seeds[self::LAMBDA][$name] ??
+               $this->seeds[self::MATRIX][$name] ??
+               $this->seeds[self::CLOSURE][$name] ??
+               $this->seeds[self::ALIAS][$name]  ??
+               'None';
     }
 
 }
