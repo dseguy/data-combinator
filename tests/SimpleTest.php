@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class SimpleTest extends TestCase
 {
@@ -11,12 +9,12 @@ final class SimpleTest extends TestCase
     {
         $matrix = new Matrix();
 
-        $matrix->addSimple([
-            'a' => [1, 2, 3],
-            'b' => fn() => 4,
+        $matrix->addSimple(array(
+            'a' => array(1, 2, 3),
+            'b' => fn () => 4,
             'c' => 5,
-            'd' => (object) []
-        ]);
+            'd' => (object) array()
+        ));
 
         $results = $matrix->toArray();
         $this->assertEquals(

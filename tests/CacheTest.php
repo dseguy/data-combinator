@@ -1,9 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class CacheTest extends TestCase
 {
@@ -11,7 +10,7 @@ final class CacheTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('a', function () { return rand(0, 100); });
-        $matrix->addSet('c', [1, 2]);
+        $matrix->addSet('c', array(1, 2));
 
         $results1 = $matrix->toArray();
         $results2 = $matrix->toArray();
@@ -25,7 +24,7 @@ final class CacheTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('a', function () { return rand(0, 100); });
-        $matrix->addSet('c', [1, 2]);
+        $matrix->addSet('c', array(1, 2));
 
         $results1 = $matrix->toArray();
         $matrix->resetCache();
@@ -40,20 +39,20 @@ final class CacheTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('a', function () { return rand(0, 100); });
-        $matrix->addSet('c', [1, 2]);
+        $matrix->addSet('c', array(1, 2));
 
-        $first = [];
+        $first = array();
         foreach($matrix->generate() as $a) {
             $first[] = $a;
         }
-        
-        $second = [];
+
+        $second = array();
         foreach($matrix->generate() as $a) {
             $second[] = $a;
         }
 
         $matrix->resetCache();
-        $third = [];
+        $third = array();
         foreach($matrix->generate() as $a) {
             $third[] = $a;
         }
@@ -80,11 +79,11 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel2WithCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addSet('b1', [1]); //, 2, 3
-        $matrix->addClosure('a', function ($r) { return ($r['b'] ?? 'Z').' in b'; });
+        $matrix->addSet('b1', array(1)); //, 2, 3
+        $matrix->addClosure('a', function ($r) { return ($r['b'] ?? 'Z') . ' in b'; });
 
         $matrix2 = new Engine();
-        $matrix2->addSet('b', [21, 22, 23]);
+        $matrix2->addSet('b', array(21, 22, 23));
         $matrix2->addMatrix('c', $matrix, Matrix::WITH_CACHE);
 
         $results = $matrix2->toArray();
@@ -105,10 +104,10 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel2WithoutCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addClosure('a', function ($r) { return $r['b'].' in b'; });
+        $matrix->addClosure('a', function ($r) { return $r['b'] . ' in b'; });
 
         $matrix2 = new Engine();
-        $matrix2->addSet('b', [1, 2]);
+        $matrix2->addSet('b', array(1, 2));
         $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
 
         $results = $matrix2->toArray();
@@ -126,18 +125,18 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel3WithoutCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addClosure('a1', function ($r) { 
-            return ($r['b33'] ?? $r['b3'] ?? 'Z').' in b'; 
+        $matrix->addClosure('a1', function ($r) {
+            return ($r['b33'] ?? $r['b3'] ?? 'Z') . ' in b';
         });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b2', [111, 211]); //
-        $matrix2->addSet('b3', [113, 213]); //
+        $matrix2->addSet('b2', array(111, 211)); //
+        $matrix2->addSet('b3', array(113, 213)); //
         $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
 
         $matrix3 = new Engine();
         $matrix3->addConstant('X', 1);
-        $matrix3->addSet('b33', [11, 21]);
+        $matrix3->addSet('b33', array(11, 21));
         $matrix3->addMatrix('d', $matrix2, Matrix::WITHOUT_CACHE);
 
         $results = $matrix3->toArray();
@@ -172,17 +171,17 @@ final class CacheTest extends TestCase
     public function testGenerateMatrixLevel3WSwitchedAddMatrixOrder(): void
     {
         $matrix = new Matrix();
-        $matrix->addClosure('a1', function ($r) { 
-            return ($r['b33'] ?? $r['b3'] ?? 'Z').' in b'; 
+        $matrix->addClosure('a1', function ($r) {
+            return ($r['b33'] ?? $r['b3'] ?? 'Z') . ' in b';
         });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b2', [111, 211]); //
-        $matrix2->addSet('b3', [113, 213]); //
+        $matrix2->addSet('b2', array(111, 211)); //
+        $matrix2->addSet('b3', array(113, 213)); //
 
         $matrix3 = new Engine();
         $matrix3->addConstant('X', 1);
-        $matrix3->addSet('b33', [11, 21]);
+        $matrix3->addSet('b33', array(11, 21));
         $matrix3->addMatrix('d', $matrix2, Matrix::WITHOUT_CACHE);
         $matrix2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
 
@@ -214,20 +213,20 @@ final class CacheTest extends TestCase
             211,
         );
     }
-    
-    // todo : level 4 
+
+    // todo : level 4
 
     public function testGenerateMatrixLevel3WithCache(): void
     {
         $matrix = new Matrix();
-        $matrix->addClosure('a', function ($r) { return $r['b'].' in b'; });
+        $matrix->addClosure('a', function ($r) { return $r['b'] . ' in b'; });
 
         $matrix2 = new Matrix();
-        $matrix2->addSet('b', [1, 2]);
+        $matrix2->addSet('b', array(1, 2));
         $matrix2->addMatrix('c', $matrix);
 
         $matrix3 = new Engine();
-        $matrix3->addSet('b', [11, 21]);
+        $matrix3->addSet('b', array(11, 21));
         $matrix3->addMatrix('d', $matrix2);
 
         $results = $matrix3->toArray();

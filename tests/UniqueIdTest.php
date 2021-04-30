@@ -1,13 +1,12 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
-use DataCombinator\Values\Matrix;
 use DataCombinator\Values\Values;
 
 final class UniqueIdTest extends TestCase
 {
-    public function tearDown() : void {
+    public function tearDown(): void {
         Values::resetUniqueId();
     }
 
@@ -15,7 +14,7 @@ final class UniqueIdTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('c', function () { return $this->uniqueId;});
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -26,9 +25,9 @@ final class UniqueIdTest extends TestCase
     public function testUniqueIdAndSet(): void
     {
         $matrix = new Engine();
-        $matrix->addSet('s', ['a', 'b']);
+        $matrix->addSet('s', array('a', 'b'));
         $matrix->addLambda('c', function () { return $this->uniqueId;});
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -44,7 +43,7 @@ final class UniqueIdTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('c', fn () => $this->uniqueId);
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -56,7 +55,7 @@ final class UniqueIdTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addLambda('c', 'callback');
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -67,8 +66,8 @@ final class UniqueIdTest extends TestCase
     public function testUniqueIdWithCallbackArray(): void
     {
         $matrix = new Engine();
-        $matrix->addLambda('c', [x5::class, 'scallback']);
-        
+        $matrix->addLambda('c', array(x5::class, 'scallback'));
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -80,8 +79,8 @@ final class UniqueIdTest extends TestCase
     {
         $matrix = new Engine();
         $x5 = new x5();
-        $matrix->addLambda('c', [$x5, 'callback']);
-        
+        $matrix->addLambda('c', array($x5, 'callback'));
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -92,8 +91,8 @@ final class UniqueIdTest extends TestCase
     public function testUniqueIdWithStaticClosure(): void
     {
         $matrix = new Engine();
-        $matrix->addLambda('c', static function () : int { return 1;});
-        
+        $matrix->addLambda('c', static function (): int { return 1;});
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['c'],
@@ -107,11 +106,11 @@ function callback() {
 }
 
 class x5 {
-    static function scallback() {
+    public static function scallback() {
         return '4';
     }
 
-    function callback() {
+    public function callback() {
         return '5';
     }
 }

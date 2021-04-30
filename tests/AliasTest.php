@@ -1,9 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class AliasTest extends TestCase
 {
@@ -11,10 +10,10 @@ final class AliasTest extends TestCase
     {
         $matrix = new Engine();
 
-        $a = $matrix->addSet('a', [1, 2, 3]);
+        $a = $matrix->addSet('a', array(1, 2, 3));
         $matrix->addAlias('b', $a);
         $matrix->addAlias('c', $a);
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['a'],
@@ -34,9 +33,9 @@ final class AliasTest extends TestCase
     {
         $matrix = new Engine();
 
-        $a = $matrix->addCombine('a', [1, 2]);
+        $a = $matrix->addCombine('a', array(1, 2));
         $matrix->addAlias('b', $a);
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['a'],
@@ -60,8 +59,8 @@ final class AliasTest extends TestCase
     {
         $matrix = new Engine();
 
-        $a = $matrix->addSet('a', [1, 2]);
-        
+        $a = $matrix->addSet('a', array(1, 2));
+
         $m2 = new Matrix();
         $m2->addAlias('j', $a);
 
@@ -82,11 +81,11 @@ final class AliasTest extends TestCase
     {
         $matrix = new Engine();
 
-        $a = $matrix->addSet('a', [1, 2, 3]);
+        $a = $matrix->addSet('a', array(1, 2, 3));
         $matrix->addAlias('b', $a);
         $matrix->addAlias('c', $a);
         $matrix->addAlias('d', $a);
-        
+
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0]['a'],
@@ -118,9 +117,9 @@ final class AliasTest extends TestCase
     public function testAliasSecondMatrix(): void
     {
         $matrix = new Engine();
-        
+
         $m2 = new Matrix();
-        $a = $m2->addSet('a', [1, 2]);
+        $a = $m2->addSet('a', array(1, 2));
 
         // the alias is added before the matrix which contains the original
         $matrix->addAlias('j', $a);
@@ -142,14 +141,14 @@ final class AliasTest extends TestCase
     {
         $m3 = new Matrix();
         $m3->addConstant('m2', 1);
-        $alias = $m3->addClosure('j', function($r) { return $r['a'] + 100;});
+        $alias = $m3->addClosure('j', function ($r) { return $r['a'] + 100;});
 
         $m2 = new Matrix();
         $m2->addConstant('m2', 1);
         $m2->addMatrix('k2', $m3);
 
         $matrix = new Engine();
-        $matrix->addSet('a', [1, 2]);
+        $matrix->addSet('a', array(1, 2));
         $matrix->addMatrix('k', $m2);
         $matrix->addAlias('l', $alias);
 

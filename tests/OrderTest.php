@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
-use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class OrderTest extends TestCase
 {
@@ -11,16 +9,16 @@ final class OrderTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addConstant('a', 1);
-        $matrix->addSet('b', [10,11]);
+        $matrix->addSet('b', array(10, 11));
 
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0],
-            ['a' => 1, 'b' => 10]
+            array('a' => 1, 'b' => 10)
         );
         $this->assertEquals(
             $results[1],
-            ['a' => 1, 'b' => 11]
+            array('a' => 1, 'b' => 11)
         );
 
         $this->assertEquals(
@@ -36,17 +34,17 @@ final class OrderTest extends TestCase
     public function testAddingOrderConstantSecond(): void
     {
         $matrix = new Engine();
-        $matrix->addSet('b', [10,11]);
+        $matrix->addSet('b', array(10, 11));
         $matrix->addConstant('a', 1);
 
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0],
-            ['a' => 1, 'b' => 10]
+            array('a' => 1, 'b' => 10)
         );
         $this->assertEquals(
             $results[1],
-            ['a' => 1, 'b' => 11]
+            array('a' => 1, 'b' => 11)
         );
 
         $this->assertEquals(
@@ -62,18 +60,18 @@ final class OrderTest extends TestCase
     public function testAddingOrderTwoConstantSecond(): void
     {
         $matrix = new Engine();
-        $matrix->addSet('b', [10,11]);
+        $matrix->addSet('b', array(10, 11));
         $matrix->addConstant('a', 1);
         $matrix->addConstant('c', 3);
 
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0],
-            ['a' => 1, 'b' => 10, 'c' => 3]
+            array('a' => 1, 'b' => 10, 'c' => 3)
         );
         $this->assertEquals(
             $results[1],
-            ['a' => 1, 'b' => 11, 'c' => 3]
+            array('a' => 1, 'b' => 11, 'c' => 3)
         );
 
         $this->assertEquals(
@@ -90,17 +88,17 @@ final class OrderTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addConstant('a', 1);
-        $matrix->addSet('b', [10,11]);
+        $matrix->addSet('b', array(10, 11));
         $matrix->addConstant('c', 3);
 
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0],
-            ['a' => 1, 'b' => 10, 'c' => 3]
+            array('a' => 1, 'b' => 10, 'c' => 3)
         );
         $this->assertEquals(
             $results[1],
-            ['a' => 1, 'b' => 11, 'c' => 3]
+            array('a' => 1, 'b' => 11, 'c' => 3)
         );
 
         $this->assertEquals(
@@ -118,16 +116,16 @@ final class OrderTest extends TestCase
         $matrix = new Engine();
         $matrix->addConstant('a', 1);
         $matrix->addConstant('c', 3);
-        $matrix->addSet('b', [10,11]);
+        $matrix->addSet('b', array(10, 11));
 
         $results = $matrix->toArray();
         $this->assertEquals(
             $results[0],
-            ['a' => 1, 'b' => 10, 'c' => 3]
+            array('a' => 1, 'b' => 10, 'c' => 3)
         );
         $this->assertEquals(
             $results[1],
-            ['a' => 1, 'b' => 11, 'c' => 3]
+            array('a' => 1, 'b' => 11, 'c' => 3)
         );
 
         $this->assertEquals(

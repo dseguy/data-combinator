@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
-use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class SequenceTest extends TestCase
 {
@@ -108,7 +106,7 @@ final class SequenceTest extends TestCase
     public function testSequenceWithClosureOdd(): void
     {
         $matrix = new Engine();
-        $matrix->addSequence('i', 0, 10, function (int $i) : int { return 2 * $i; });
+        $matrix->addSequence('i', 0, 10, function (int $i): int { return 2 * $i; });
 
         $results = $matrix->toArray();
         $this->assertEquals(
@@ -132,7 +130,7 @@ final class SequenceTest extends TestCase
     public function testSequenceWithClosureSquare(): void
     {
         $matrix = new Engine();
-        $matrix->addSequence('i', 0, 3, function (int $i) : int { return $i * $i; });
+        $matrix->addSequence('i', 0, 3, function (int $i): int { return $i * $i; });
 
         $results = $matrix->toArray();
         $this->assertEquals(
@@ -156,7 +154,7 @@ final class SequenceTest extends TestCase
     public function testSequenceWithClosureChr(): void
     {
         $matrix = new Engine();
-        $matrix->addSequence('i', 0, 3, function (int $i) : string { return chr($i + 65); });
+        $matrix->addSequence('i', 0, 3, function (int $i): string { return chr($i + 65); });
 
         $results = $matrix->toArray();
         $this->assertEquals(

@@ -1,9 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class WriteModeTest extends TestCase
 {
@@ -13,7 +12,7 @@ final class WriteModeTest extends TestCase
         $matrix1->addConstant('s', 1);
         $matrix1->addConstant('t', 2);
         $matrix1->addConstant('t', 3);
-        
+
         $results = $matrix1->toArray();
         $this->assertEquals(
             1,
@@ -31,7 +30,7 @@ final class WriteModeTest extends TestCase
         $matrix1->addConstant('s', 1);
         $matrix1->addConstant('t', 2);
         $matrix1->addConstant('t', 3);
-        
+
         $results = $matrix1->toArray();
         $this->assertEquals(
             1,
@@ -48,7 +47,7 @@ final class WriteModeTest extends TestCase
         $matrix1 = new Engine(Matrix::WARN);
         $matrix1->addConstant('s', 1);
         $matrix1->addConstant('t', 2);
-        
+
         $called = 0;
         try {
             $matrix1->addConstant('t', 3);

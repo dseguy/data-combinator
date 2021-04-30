@@ -1,9 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class MultipleUseTest extends TestCase
 {
@@ -11,10 +10,10 @@ final class MultipleUseTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->addConstant('a', 1);
-        
+
         $m2 = new Engine();
         $m2->addMatrix('c', $matrix);
-        
+
         $catch = false;
         try {
             $m2->addMatrix('d', $matrix);
@@ -32,11 +31,11 @@ final class MultipleUseTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->addConstant('a', 1);
-        
+
         $m2 = new Engine();
         $m2->addMatrix('c', $matrix);
         $n2 = clone $matrix;
-        
+
         $catch = false;
         try {
             $m2->addMatrix('d', $n2);
@@ -54,7 +53,7 @@ final class MultipleUseTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->addConstant('a', 1);
-        
+
         $m2 = new Engine();
         $d = $m2->addMatrix('c', $matrix, Matrix::WITHOUT_CACHE);
         $m2->addAlias('d', $d);
@@ -62,7 +61,7 @@ final class MultipleUseTest extends TestCase
         $result = $m2->toArray();
         $this->assertEquals(
             $result[0],
-            ['d' => [ "a" => 1], 'c' => [ "a" => 1]]
+            array('d' => array( 'a' => 1), 'c' => array( 'a' => 1))
         );
     }
 

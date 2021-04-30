@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
-use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class CountTest extends TestCase
 {
@@ -11,10 +9,10 @@ final class CountTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addConstant('a', 4);
-        $matrix->addSet('c', [1, 2, 3]);
-        $matrix->addSet('d', [1, 2, 3]);
-        $matrix->addCombine('e', [1, 2, 3]);
-        
+        $matrix->addSet('c', array(1, 2, 3));
+        $matrix->addSet('d', array(1, 2, 3));
+        $matrix->addCombine('e', array(1, 2, 3));
+
         $this->assertEquals(
             $matrix->count(),
             72
@@ -25,8 +23,8 @@ final class CountTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addConstant('a', 4);
-        $matrix->addPermute('e', [1, 2, 3]);
-        
+        $matrix->addPermute('e', array(1, 2, 3));
+
         $this->assertEquals(
             $matrix->count(),
             6
@@ -37,9 +35,9 @@ final class CountTest extends TestCase
     {
         $matrix = new Engine();
         $matrix->addConstant('a', 4);
-        $g = function () : \Generator { yield 1;} ;
+        $g = function (): Generator { yield 1;} ;
         $matrix->addSet('e', $g());
-        
+
         try {
             $matrix->count();
         } catch (\Exception $e) {

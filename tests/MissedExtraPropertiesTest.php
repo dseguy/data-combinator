@@ -1,9 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
-use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class MissedExtraPropertiesTest extends TestCase
 {
@@ -13,11 +11,11 @@ final class MissedExtraPropertiesTest extends TestCase
         $matrix->setClass(x1::class);
         $matrix->addConstant('c', 1);
         $matrix->addConstant('extra', 2);
-        
+
         $matrix->toArray();
         $this->assertEquals(
             $matrix->extraProperties(),
-            ['extra']
+            array('extra')
         );
     }
 
@@ -25,13 +23,13 @@ final class MissedExtraPropertiesTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->setClass(x1::class);
-        $matrix->addSet('c', [1,2,3]);
+        $matrix->addSet('c', array(1, 2, 3));
         $matrix->addConstant('extra', 2);
-        
+
         $matrix->toArray();
         $this->assertEquals(
             $matrix->extraProperties(),
-            ['extra']
+            array('extra')
         );
     }
 
@@ -40,11 +38,11 @@ final class MissedExtraPropertiesTest extends TestCase
         $matrix = new Matrix();
         $matrix->setClass(y1::class);
         $matrix->addConstant('c', 1);
-        
+
         $matrix->toArray();
         $this->assertEquals(
             $matrix->missedProperties(),
-            ['missed']
+            array('missed')
         );
     }
 
@@ -52,12 +50,12 @@ final class MissedExtraPropertiesTest extends TestCase
     {
         $matrix = new Matrix();
         $matrix->setClass(y1::class);
-        $matrix->addSet('c', [1,2,3]);
-        
+        $matrix->addSet('c', array(1, 2, 3));
+
         $matrix->toArray();
         $this->assertEquals(
             $matrix->missedProperties(),
-            ['missed']
+            array('missed')
         );
     }
 }

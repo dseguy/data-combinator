@@ -1,9 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 use PHPUnit\Framework\TestCase;
 use DataCombinator\Engine;
 use DataCombinator\Values\Matrix;
-use DataCombinator\Values\Values;
 
 final class SetAndObjectsTest extends TestCase
 {
@@ -18,9 +17,9 @@ final class SetAndObjectsTest extends TestCase
         });
 
         $matrix1 = new Engine();
-        $matrix1->addSet('s', [11,12]);
+        $matrix1->addSet('s', array(11, 12));
         $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
-        
+
         $results = $matrix1->toArray();
         $this->assertEquals(
             11,
@@ -36,16 +35,16 @@ final class SetAndObjectsTest extends TestCase
     {
         $matrix2 = new Matrix();
         $matrix2->setClass(x4::class);
-        $matrix2->addSet('c', [1,3]);
+        $matrix2->addSet('c', array(1, 3));
         // Cannot use object of type x2 as array
         $matrix2->addClosure('c2', function ($r) {
             return $r['s'];
         });
 
         $matrix1 = new Engine();
-        $matrix1->addSet('s', [11,12]);
+        $matrix1->addSet('s', array(11, 12));
         $matrix1->addMatrix('m', $matrix2, Matrix::WITHOUT_CACHE);
-        
+
         $results = $matrix1->toArray();
         $this->assertEquals(
             11,
@@ -74,11 +73,11 @@ final class SetAndObjectsTest extends TestCase
 
         $matrix1 = new Engine();
         $matrix1->addMatrix('m', $matrix2);
-        $matrix1->addSet('s', [11,12]);
+        $matrix1->addSet('s', array(11, 12));
         $matrix1->addClosure('d', function ($r) {
             return $r['m']->c + 10;
         });
-        
+
         $results = $matrix1->toArray();
         $this->assertEquals(
             11,
