@@ -40,4 +40,68 @@ final class ClosureTest extends TestCase
         );
     }
 
+    public function testArrowFunction(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addConstant('c', 1);
+        $matrix->addClosure('extra', fn ($r) => 3 );
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0],
+            array('c' => 1, 'extra' => 3)
+        );
+    }
+
+    public function testStringCallable(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addConstant('c', 1);
+        $matrix->addClosure('extra', 'foo2' );
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0],
+            array('c' => 1, 'extra' => 4)
+        );
+    }
+
+    public function testStringObjectCallable(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addConstant('c', 1);
+        $matrix->addClosure('extra', 'ClosureTest::foo' );
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0],
+            array('c' => 1, 'extra' => 5)
+        );
+    }
+
+    public static function foo($r) {
+        return 5;
+    }
+
+    public function testArrayCallable(): void
+    {
+        $matrix = new Matrix();
+        $matrix->addConstant('c', 1);
+        $matrix->addClosure('extra', array(ClosureTest::class, 'foo2') );
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0],
+            array('c' => 1, 'extra' => 6)
+        );
+    }
+
+    public static function foo2($r) {
+        return 6;
+    }
+
+}
+
+function foo2($r) {
+    return 4;
 }
