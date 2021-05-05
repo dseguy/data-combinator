@@ -110,6 +110,10 @@ class Engine {
     public function count(): int {
         return $this->root->count();
     }
+
+    public function getValue($name): Values {
+        return $this->root->getValue($name);
+    }
 }
 
 ?>

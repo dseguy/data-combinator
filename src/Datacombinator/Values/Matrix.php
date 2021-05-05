@@ -24,6 +24,9 @@ class Matrix extends Values {
     public const CONSTANT = 1;
     public const DYNAMIC = 2;
 
+    public const GLOBAL = 1;
+    public const LOCAL = 2;
+
     public const OVERWRITE = 1;
     public const SKIP = 2;
     public const WARN = 3;
@@ -40,14 +43,18 @@ class Matrix extends Values {
     private $inUse = false;
     private $useCache = self::WITH_CACHE;
     private $cache = null;
+    private $scope = self::GLOBAL;
 
     private int $id = 0;
 
     private int $writeMode = self::OVERWRITE;
 
-    public function __construct(string $useCache = self::WITHOUT_CACHE, int $writeMode = self::OVERWRITE) {
+    public function __construct(string $useCache = self::WITHOUT_CACHE,
+                                int $writeMode = self::OVERWRITE,
+                                int $scope = self::GLOBAL) {
         $this->useCache = $useCache;
         $this->writeMode = $writeMode;
+        $this->scope = $scope;
 
         $this->seeds = new Seeds();
 
@@ -127,7 +134,13 @@ class Matrix extends Values {
         }
         $matrix->inUse = true;
         $matrix->useCache = $useCache;
-        $matrix->setP1($this->p1);
+        if ($this->scope === self::GLOBAL) {
+            $matrix->setP1($this->p1);
+        } elseif ($this->scope === self::LOCAL) {
+            $matrix->setP1($this->previous);
+        } else {
+            throw new \Exception('Not a valid scope');
+        }
 
         $name = $this->makeId($name);
         $this->seeds->add($name, $matrix, Seeds::MATRIX);
@@ -324,6 +337,14 @@ class Matrix extends Values {
 
     public function getSack(): Sack {
         return $this->previous;
+    }
+
+    public function getValue($name): Values {
+        if (!$this->seeds->isset($name)) {
+            throw new \Exception("No such value as $name in Matrix");
+        }
+
+        return $this->seeds->get($name);
     }
 
     public function toArray(): array {

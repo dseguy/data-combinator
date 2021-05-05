@@ -10,7 +10,7 @@ final class UniqueIdTest extends TestCase
         Values::resetUniqueId();
     }
 
-    public function testUniqueId(): void
+    public function testUniqueIdLambda(): void
     {
         $matrix = new Engine();
         $matrix->addLambda('c', function () { return $this->uniqueId;});
@@ -20,6 +20,48 @@ final class UniqueIdTest extends TestCase
             $results[0]['c'],
             0
         );
+    }
+
+    public function testUniqueIdClosureNoArgs(): void
+    {
+        $matrix = new Engine();
+        $matrix->addClosure('c', function () { return $this->uniqueId;});
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0]['c'],
+            0
+        );
+    }
+
+    public function testUniqueIdClosure(): void
+    {
+        $matrix = new Engine();
+        $matrix->addClosure('c', function ($r) { return $this->uniqueId;});
+
+        $results = $matrix->toArray();
+        $this->assertEquals(
+            $results[0]['c'],
+            0
+        );
+    }
+
+    public function testNotUniqueId(): void
+    {
+        $matrix = new Engine();
+        $matrix->addLambda('c', function () { return $this->someValue;});
+
+        $caught = false;
+        try {
+            $matrix->toArray();
+        } catch (\Exception $e) {
+            $caught = true;
+        } finally {
+            $this->assertEquals(
+                $caught,
+                true
+            );
+        }
     }
 
     public function testUniqueIdAndSet(): void
