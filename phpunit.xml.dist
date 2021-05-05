@@ -12,7 +12,7 @@
     bootstrap="src/autoload.php" 
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
 >
-  <coverage processUncoveredFiles="true">
+  <coverage processUncoveredFiles="false">
     <include>
       <directory suffix=".php">src</directory>
     </include>
