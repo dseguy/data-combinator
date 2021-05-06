@@ -322,7 +322,11 @@ class Matrix extends Values {
         $this->class = $class;
     }
 
-    public function setP1(Sack $sack): void {
+    private function setP1(Sack $sack): void {
+        if ($this->scope === self::LOCAL) {
+            return;
+        }
+
         $this->p1 = $sack;
 
         // recursively set P1 to lower matrices too
